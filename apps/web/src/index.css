@@ -1,0 +1,119 @@
+@import 'hack-font/build/web/hack.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+   TypeLens theme — the single source of truth for all colors.
+   Monkeytype-like dark, minimalist palette. Every component reads these tokens.
+   ============================================================================ */
+:root {
+  /* Your Monkeytype custom theme ("customThemeColors": bg, main, caret, sub, sub-alt, text, error, ...) */
+  --bg: #000000;          /* page background        <- bg */
+  --bg-dark: #000000;     /* sidebar / footer       <- sub-alt */
+  --bg-card: #000000;     /* card surface           <- sub-alt */
+  --bg-elev: #141414;     /* hover / elevated (derived: a step above black) */
+  --sub: #5f5d5d;         /* secondary text         <- sub */
+  --sub-2: #2b2a2a;       /* borders, gridlines (derived: a dimmer sub) */
+  --text: #ffffff;        /* primary text           <- text */
+  --main: #ffffff;        /* accent                 <- main */
+  --error: #ca4754;       /* errors / incorrect     <- error */
+  --ok: #b5b5b5;          /* "good" series (derived: the theme has no green, so a light grey) */
+
+  /* the same colours as r g b channels, so Tailwind opacity modifiers (e.g. border-sub-2/60) work */
+  --bg-rgb: 0 0 0;
+  --bg-dark-rgb: 0 0 0;
+  --bg-card-rgb: 0 0 0;
+  --bg-elev-rgb: 20 20 20;
+  --sub-rgb: 95 93 93;
+  --sub-2-rgb: 43 42 42;
+  --text-rgb: 255 255 255;
+  --main-rgb: 255 255 255;
+  --error-rgb: 202 71 84;
+  --ok-rgb: 181 181 181;
+
+  --radius: 8px;
+  --font: 'Hack', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Focus ring for keyboard accessibility */
+:focus-visible {
+  outline: 2px solid var(--main);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Custom scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--sub) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--sub);
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--sub-2);
+}
+
+/* Range inputs */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--sub-2);
+  border-radius: 999px;
+  outline: none;
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--main);
+  cursor: pointer;
+  border: none;
+}
+input[type='range']::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--main);
+  cursor: pointer;
+  border: none;
+}
+
+/* Utility: monospace numeric tabular figures */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}

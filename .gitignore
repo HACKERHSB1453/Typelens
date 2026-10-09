@@ -1,0 +1,17 @@
+# dependencies and build output
+node_modules/
+dist/
+apps/desktop/app/
+apps/desktop/release/
+*.tsbuildinfo
+coverage/
+.vite/
+
+# local environment and logs
+.env*
+*.log
+.DS_Store
+
+# secrets: Chrome extension signing key and packed extension must never be committed
+*.pem
+*.crx

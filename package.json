@@ -1,0 +1,30 @@
+{
+  "name": "typelens",
+  "private": true,
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HACKERHSB1453/Typelens.git"
+  },
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.base.json --noEmit && npm run typecheck --workspaces --if-present",
+    "test": "vitest run",
+    "build": "npm run build -w @typelens/extension && npm run build -w @typelens/desktop",
+    "start:desktop": "npm run build -w @typelens/extension && npm run start -w @typelens/desktop",
+    "dev:desktop": "npm run dev -w @typelens/desktop",
+    "dist:win": "npm run build -w @typelens/extension && npm run dist:win -w @typelens/desktop",
+    "dist:linux": "npm run build -w @typelens/extension && npm run dist:linux -w @typelens/desktop"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.3.0",
+    "fake-indexeddb": "^6.2.5",
+    "jsdom": "^29.1.1",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}

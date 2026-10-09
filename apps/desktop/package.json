@@ -1,0 +1,38 @@
+{
+  "name": "@typelens/desktop",
+  "productName": "TypeLens",
+  "desktopName": "typelens.desktop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local-first typing analytics for Monkeytype: per-key, n-gram, finger and word stats, replays and practice text.",
+  "license": "MIT",
+  "author": { "name": "TypeLens contributors", "email": "noreply@typelens.invalid" },
+  "homepage": "https://github.com/HACKERHSB1453/Typelens",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HACKERHSB1453/Typelens.git"
+  },
+  "bugs": {
+    "url": "https://github.com/HACKERHSB1453/Typelens/issues"
+  },
+  "main": "app/main.cjs",
+  "scripts": {
+    "build": "node build.mjs",
+    "start": "node build.mjs && electron app",
+    "dev": "node build.mjs --dev && node scripts/dev.mjs",
+    "pack": "node build.mjs && electron-builder --dir --publish never",
+    "dist:win": "node build.mjs && electron-builder --win nsis zip --publish never",
+    "dist:linux": "node build.mjs && electron-builder --linux deb rpm --publish never",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@typelens/core": "*",
+    "@typelens/host-contract": "*",
+    "electron-updater": "^6.6.2"
+  },
+  "devDependencies": {
+    "electron": "44.7.0",
+    "electron-builder": "26.15.3",
+    "esbuild": "^0.21.5"
+  }
+}

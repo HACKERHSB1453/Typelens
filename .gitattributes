@@ -1,0 +1,13 @@
+# Normalise line endings in the repository; check out with the platform default (LF in the repo).
+* text=auto eol=lf
+
+# Binary assets: never diffed or line-ending converted.
+*.png binary
+*.ico binary
+*.icns binary
+*.woff binary
+*.woff2 binary
+*.zip binary
+
+# PowerShell scripts need CRLF on Windows.
+*.ps1 text eol=crlf

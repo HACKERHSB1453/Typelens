@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TypeLens</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <h1>TypeLens</h1>
+    <label class="switch" title="Pause or resume recording">
+      <input type="checkbox" id="rec" />
+      <span id="recLabel">Recording</span>
+    </label>
+  </header>
+
+  <div id="warn" class="warn" hidden></div>
+
+  <section class="grid">
+    <div><b id="total">–</b><span>tests stored</span></div>
+    <div><b id="unsynced">–</b><span>not yet delivered</span></div>
+  </section>
+
+  <section class="desk">
+    <span id="deskDot" class="dot"></span>
+    <span id="deskText">Checking the TypeLens app…</span>
+    <button id="sync" class="small">Sync now</button>
+  </section>
+
+  <p id="last" class="last">No tests recorded yet. Open monkeytype.com and finish a test.</p>
+
+  <div class="buttons">
+    <button id="open" class="primary">Open TypeLens app</button>
+    <button id="export">Export JSON</button>
+  </div>
+  <p class="foot">Everything stays on this computer. TypeLens only listens to the typing box on monkeytype.com.</p>
+  <script src="popup.js"></script>
+</body>
+</html>
