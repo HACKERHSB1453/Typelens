@@ -1,0 +1,167 @@
+name: Release
+
+# Builds the desktop packages and the browser extension zip for a version tag (vX.Y.Z) and creates a DRAFT GitHub
+# Release with all artifacts. A maintainer checks the draft and publishes it by hand (see docs/RELEASING.md).
+# workflow_dispatch builds the same artifacts without creating a release, so a build can be tested first.
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    name: Read version and check the tag
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7
+
+      - name: Read the desktop version and compare it with the tag
+        id: read
+        shell: bash
+        run: |
+          version="$(node -p "require('./apps/desktop/package.json').version")"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "Desktop version: ${version}"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ] && [ "${GITHUB_REF_NAME}" != "v${version}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match apps/desktop/package.json version ${version}. Bump the version first."
+            exit 1
+          fi
+
+  build-windows:
+    name: Build Windows packages
+    needs: version
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the Windows installer and zip
+        run: npm run dist:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Optional code signing. Add the secrets, then uncomment these two lines (see docs/RELEASING.md):
+          # CSC_LINK: ${{ secrets.CSC_LINK }}
+          # CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+
+      - name: Collect release files
+        run: |
+          mkdir -p release-artifacts
+          find apps/desktop/release -maxdepth 1 -type f \( -name '*.exe' -o -name '*.zip' -o -name 'latest*.yml' -o -name '*.blockmap' \) -exec cp {} release-artifacts/ \;
+          ls -la release-artifacts
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-artifacts
+          path: release-artifacts/*
+          if-no-files-found: error
+
+  build-linux:
+    name: Build Linux packages and extension zip
+    needs: version
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7
+
+      - name: Install rpm tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the .deb and .rpm
+        run: npm run dist:linux
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and zip the browser extension
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          npm run build -w @typelens/extension
+          mkdir -p release-artifacts
+          (cd apps/extension/dist && zip -r "$GITHUB_WORKSPACE/release-artifacts/TypeLens-extension-${VERSION}.zip" .)
+
+      - name: Collect release files
+        run: |
+          mkdir -p release-artifacts
+          find apps/desktop/release -maxdepth 1 -type f \( -name '*.deb' -o -name '*.rpm' -o -name 'latest*.yml' -o -name '*.blockmap' \) -exec cp {} release-artifacts/ \;
+          ls -la release-artifacts
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: linux-artifacts
+          path: release-artifacts/*
+          if-no-files-found: error
+
+  publish:
+    name: Create draft GitHub Release
+    needs: [version, build-windows, build-linux]
+    # Only tag builds publish; a manual run just produces the artifacts.
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: '*-artifacts'
+          path: dist-artifacts
+          merge-multiple: true
+
+      - name: List files to publish
+        run: ls -la dist-artifacts
+
+      - name: Create or update the draft release
+        # Pinned to a release tag; update deliberately.
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: TypeLens ${{ needs.version.outputs.version }}
+          draft: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            dist-artifacts/*.exe
+            dist-artifacts/*.zip
+            dist-artifacts/*.deb
+            dist-artifacts/*.rpm
+            dist-artifacts/latest*.yml
+            dist-artifacts/*.blockmap
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

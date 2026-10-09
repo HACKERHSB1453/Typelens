@@ -1,0 +1,92 @@
+name: Bug report
+description: Report something that does not work as expected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. **Do not report security problems here**: see SECURITY.md.
+        Do not paste your typing data or export files into this issue; they contain your keystrokes.
+  - type: input
+    id: version
+    attributes:
+      label: TypeLens version
+      description: Shown in the desktop app under Help -> About TypeLens, and on the extension card in chrome://extensions.
+      placeholder: "desktop 1.0.0, extension 1.0.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: Which part is affected?
+      options:
+        - Desktop app (window, install, updates)
+        - Browser extension (recording, popup)
+        - Sync between extension and desktop app
+        - Dashboard (analysis, replay, progress, practice)
+        - Import / export
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows 11
+        - Windows 10
+        - Ubuntu / Debian
+        - Fedora / openSUSE
+        - Other Linux
+        - macOS (built from source)
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: "Chrome 130, Edge 130, Brave 1.x"
+    validations:
+      required: true
+  - type: input
+    id: install
+    attributes:
+      label: How did you install it?
+      description: Installer, .deb / .rpm, Windows zip, or built from source.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps are best. If it only happens with some tests, say which mode and settings.
+      placeholder: |
+        1. Open monkeytype.com and finish a 30 s test
+        2. Open TypeLens -> Data -> Sync
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: extension-status
+    attributes:
+      label: Extension status (if recording is involved)
+      description: Open the extension popup and paste what it says, including any health or "captureUnreliable" message.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log excerpt (optional)
+      description: "The desktop app writes logs/main.log in its profile folder (Help -> Open log folder). Paste only the relevant lines and remove anything personal."
+      render: text
