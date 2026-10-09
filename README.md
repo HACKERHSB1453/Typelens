@@ -1,101 +1,197 @@
+<div align="center">
+
+<img src="apps/desktop/build/icon-256.png" alt="TypeLens logo" width="88" height="88">
+
 # TypeLens
 
-**Local, private typing analytics for [Monkeytype](https://monkeytype.com).** Monkeytype only keeps aggregate
-results, so TypeLens records your keystrokes itself while you take tests: a small browser extension captures the
-key-down and key-up timing in Monkeytype's typing box and hands it to a desktop app on your own machine. The app
-analyses every test (per-key, bigram, trigram, word, finger and hand statistics, heatmaps, keystroke replay, progress
-over time) and builds weak-spot practice text you can paste into Monkeytype's Custom mode. Nothing leaves your
-computer, there is no account, and there is no telemetry.
+**Local, private typing analytics for [Monkeytype](https://monkeytype.com).**
 
-TypeLens is inspired by TypeQuicker's analytics. It is an independent project and is **not affiliated with
-Monkeytype or TypeQuicker**.
+See exactly which keys, letter pairs, words and fingers slow you down, replay every test keystroke by keystroke,
+and generate practice text that targets your weak spots. Everything stays on your computer.
 
-<!-- TODO: add screenshots (dashboard overview, keyboard heatmap, replay with WPM graph) to docs/screenshots/ and link them here. -->
+[![Latest release](https://img.shields.io/github/v/release/HACKERHSB1453/Typelens?label=release&color=white)](https://github.com/HACKERHSB1453/Typelens/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/HACKERHSB1453/Typelens/total?color=white)](https://github.com/HACKERHSB1453/Typelens/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-white)](LICENSE)
+![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux-white)
+
+[**Download**](https://github.com/HACKERHSB1453/Typelens/releases/latest) ·
+[Getting started](#getting-started) ·
+[Using TypeLens](#using-typelens) ·
+[Privacy](#privacy) ·
+[Build from source](#build-from-source)
+
+<br>
+
+<img src="docs/screenshots/overview.png" alt="TypeLens overview dashboard with KPI cards and a WPM and accuracy trend chart" width="900">
+
+</div>
+
+---
+
+## Why TypeLens?
+
+Monkeytype tells you your WPM and accuracy, but it only keeps the totals. It doesn't tell you *why* you are slow.
+
+TypeLens records the timing of every key you press and release while you take a test, then analyses it on your own
+machine. You get per-key speed and error rates, the bigrams and trigrams that cost you the most time, finger and hand
+balance, word-level burst speed and a full replay of each test. It then turns your weak spots into practice text you
+can paste straight into Monkeytype.
+
+- **Private by design.** No account, no telemetry, no cloud. Your data never leaves your computer.
+- **Zero effort.** Type on Monkeytype as usual. Tests appear in the app automatically.
+- **Actionable.** Every chart points at something you can practise, and the practice generator does it for you.
+
+> TypeLens is an independent project and is **not affiliated with Monkeytype or TypeQuicker**.
+
 ## Screenshots
 
-_Screenshots are not available yet. TODO: add images under `docs/screenshots/` and embed them in this section._
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/keys.png" alt="Keyboard heatmap with per-key statistics"><br><b>Keys.</b> Keyboard heatmap by speed, errors, hold time or count, with a per-key table and common mistypes.</td>
+    <td width="50%"><img src="docs/screenshots/ngrams.png" alt="Bigram table ranked by time cost"><br><b>N-grams.</b> Bigrams and trigrams ranked by how much time they cost you. Select some and practise them directly.</td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/replay.png" alt="Replay of a single test with result graph and word speed"><br><b>Replay.</b> The result graph Monkeytype throws away, word burst speeds, and a keystroke-by-keystroke replay.</td>
+    <td width="50%"><img src="docs/screenshots/fingers.png" alt="Hand heatmap showing per-finger speed"><br><b>Fingers &amp; hands.</b> Per-finger speed, errors, hold time and rollover, plus left-versus-right balance.</td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/progress.png" alt="Progress charts for WPM, accuracy, consistency and minutes per day"><br><b>Progress.</b> WPM, accuracy, consistency and practice time over time, with streaks.</td>
+    <td width="50%"><img src="docs/screenshots/practice.png" alt="Practice text generator"><br><b>Practice.</b> Generate a drill from your weakest n-grams, keys or fingers and paste it into Monkeytype.</td>
+  </tr>
+</table>
 
-## Features
+<sub>Screenshots show the built-in demo data, which the app displays until your first real test arrives.</sub>
 
-**Recording**
+## Getting started
 
-- Records `keydown` / `keyup` times and the characters you type, only inside Monkeytype's typing box.
-- Stores the test settings and the numbers on the result screen (WPM, accuracy, consistency, duration, mode).
-- Passive: it never cancels or changes an event, never edits the page, and never records other fields or other sites.
-- Also keeps the things Monkeytype shows once and then discards: the result graph (WPM so far, raw speed and errors
-  per second) and the burst speed of every word, rebuilt from the stored keystrokes.
+Setup takes about two minutes: install the desktop app, load the browser extension, and take a test.
 
-**Analysis**
+### 1. Install the desktop app
 
-- Per-key speed, error rate, hold time and count, with a keyboard heatmap and a sortable table.
-- Bigrams and trigrams with cost bars, search, and a minimum sample filter.
-- Slowest and most-mistyped words.
-- Finger and hand statistics, a hand diagram, left-versus-right comparison, same-finger bigrams, hand alternation and
-  an inter-key-interval histogram.
-- Overview with KPI cards, a WPM and accuracy trend, a 12-month activity heatmap with streaks, and the weakest spots.
+Download the package for your system from the
+[**latest release**](https://github.com/HACKERHSB1453/Typelens/releases/latest).
 
-**Replay**
-
-- Monkeytype-style text view with correct, incorrect and extra characters and the caret.
-- Play, pause, 0.5x / 1x / 2x / 4x speed and a scrubber, with a live keyboard showing the keys held down.
-- Per-test WPM graph, rebuilt from your own keystrokes.
-
-**Progress and practice**
-
-- WPM, accuracy, consistency and minutes-per-day charts, improved and regressed n-grams, current and longest streak.
-- Practice generator (focus on n-grams, keys or fingers; length, emphasis and hand settings) that produces text to
-  paste into Monkeytype's Custom mode. The last 20 generated texts are kept for reuse.
-
-**Data**
-
-- Import Monkeytype's results CSV (Account -> export CSV) for long-term history. These imported tests have speed and
-  accuracy only, because Monkeytype never stored keystrokes for them, so they have no replay or key statistics.
-- Export all data as JSON, or sessions and keystrokes as CSV; delete a single session; delete all data behind a typed
-  confirmation.
-- When there are no real tests yet, the dashboard shows clearly labelled demo data.
-
-**Desktop app**
-
-- Windows installer (NSIS `.exe`) and portable `.zip`, and Linux packages (`.deb`, `.rpm`).
-- Tests arrive automatically: the extension hands each finished test to the app, and the app stores it on your computer.
-- A notification when a new test arrives while the window is in the background (can be turned off in Settings).
-- Native menus and shortcuts: Ctrl+1 to Ctrl+9 switch pages, Ctrl+I imports, Ctrl+E exports JSON, plus the usual zoom
-  keys. Import and export use the system file dialogs.
-- Start at login (optional, in Settings).
-- Update checks against GitHub Releases shortly after launch and every six hours. An update is downloaded in the
-  background, and installed only when you choose **Restart to update**.
-- The sync endpoint listens on `127.0.0.1` only. Only the TypeLens extension may use it, after pairing.
-
-## Install
-
-Download the packages for your system from the
-[**Releases** page](https://github.com/HACKERHSB1453/Typelens/releases).
-
-| System | Package | How to install |
+| System | File | Install |
 | --- | --- | --- |
-| Windows 10/11 | `TypeLens-Setup-<version>-x64.exe` (installer) or `TypeLens-<version>-win-x64.zip` | Run the installer. The `.zip` is a portable copy; it does not update itself. |
-| Debian 12+ / Ubuntu 22.04+ (amd64) | `TypeLens-<version>-amd64.deb` | `sudo apt install ./TypeLens-<version>-amd64.deb` |
-| Fedora / RHEL family (x86_64) | `TypeLens-<version>-x86_64.rpm` | `sudo dnf install ./TypeLens-<version>-x86_64.rpm` |
+| **Windows 10 / 11** | `TypeLens-Setup-<version>-x64.exe` | Run the installer. A portable `TypeLens-<version>-win-x64.zip` is also available (it does not auto-update). |
+| **Ubuntu 22.04+ / Debian 12+** | `TypeLens-<version>-amd64.deb` | `sudo apt install ./TypeLens-<version>-amd64.deb` |
+| **Fedora / RHEL family** | `TypeLens-<version>-x86_64.rpm` | `sudo dnf install ./TypeLens-<version>-x86_64.rpm` |
 
-The names follow the `artifactName` patterns in `apps/desktop/electron-builder.yml`. Use the files listed on the Releases
-page for your version. The `.deb` is built for Debian 12+ and Ubuntu 22.04+; the `.rpm` is built and tested on Fedora.
-Install with `apt` or `dnf` (not `dpkg -i` or `rpm -i`) so the required libraries are pulled in automatically.
+Install with `apt` or `dnf` so the required libraries are pulled in automatically. On Fedora, if the install fails
+with a `/usr/lib/.build-id/...` conflict, see [Troubleshooting](#troubleshooting).
 
-### Install the browser extension
+> **Windows SmartScreen:** the installer is not code-signed yet, so Windows may show *"Windows protected your PC"*.
+> Click **More info → Run anyway**.
 
-The extension records your tests. It works in Chrome, Edge and Brave (Chrome 110 or newer).
+### 2. Load the browser extension
 
-1. Get the extension folder: in TypeLens choose **File -> Open browser-extension folder**, or download
-   `TypeLens-extension-<version>.zip` from the same release and extract it to a folder you will keep.
+The extension is what records your tests. It works in **Chrome, Edge and Brave** (version 110 or newer).
+
+1. Get the extension folder. In TypeLens choose **File → Open browser-extension folder**, or download
+   `TypeLens-extension-<version>.zip` from the release and extract it somewhere permanent.
 2. Open `chrome://extensions` (Edge: `edge://extensions`, Brave: `brave://extensions`).
-3. Turn on **Developer mode**.
-4. Click **Load unpacked** and select the extension folder (the one that contains `manifest.json`).
+3. Turn on **Developer mode** (top-right toggle).
+4. Click **Load unpacked** and select the folder that contains `manifest.json`.
 
-Keep the folder where it is. Chrome reads the extension from it, so moving or deleting it disables the extension.
-Updating the desktop app does not update an unpacked extension; repeat the steps with the new extension zip (or
-click the reload button on the extension card).
+Keep that folder where it is. The browser loads the extension from it, so moving or deleting it disables the extension.
 
-Then open monkeytype.com and finish a test. The extension badge shows how many tests are waiting to reach the app.
+### 3. Take a test
+
+1. Start the TypeLens desktop app and leave it running (it can sit in the background).
+2. Go to [monkeytype.com](https://monkeytype.com) and finish a test.
+3. The test shows up in TypeLens within a few seconds, and the demo data disappears.
+
+The first extension that connects is paired with the app automatically. The extension's toolbar badge shows how many
+tests are still waiting to be delivered, for example while the app is closed. Nothing is lost: they are sent the next
+time the app runs.
+
+## Using TypeLens
+
+The sidebar has one page per kind of analysis. The filter bar at the top applies to every page: pick a time range
+(7d / 30d / 90d / all), Monkeytype modes, language, a minimum sample size, and whether to include practice tests.
+
+| Page | What it answers |
+| --- | --- |
+| **Overview** | How am I doing overall? WPM, accuracy, consistency, a trend chart, a 12-month activity heatmap and your weakest spots. |
+| **Keys** | Which keys are slow or error-prone? Click a key on the heatmap to inspect it and see what you mistype it as. |
+| **N-grams** | Which letter pairs and triples cost the most time? Sort by impact to find the biggest wins. |
+| **Words** | Which words are slowest or most often mistyped? |
+| **Fingers** | Which fingers and which hand hold you back? Includes same-finger bigrams and hand alternation. |
+| **Replay** | What actually happened in a specific test? Watch it back at 0.5×–4× with a live keyboard. |
+| **Progress** | Am I improving? Long-term charts, improved and regressed n-grams, and streaks. |
+| **Practice** | What should I practise? Generates targeted text from your weak spots. |
+| **Data** | Sync, import, export, extension pairing, and deleting data. |
+
+### A practice loop that works
+
+1. Take 5–10 normal tests on Monkeytype so TypeLens has enough data.
+2. Open **N-grams**, sort by **Impact**, tick the worst few and click **Practice selected**. Or open **Practice** and
+   leave the focus on **auto**.
+3. Click **Generate**, then copy the text.
+4. On Monkeytype, choose **custom → change**, paste the text and type it.
+5. TypeLens links that test to the drill, so you can compare before and after.
+
+### Import your Monkeytype history
+
+On Monkeytype, go to **Account → export CSV**. Then in TypeLens open **Data → Import JSON / Monkeytype CSV** (or press
+`Ctrl+I`). Imported tests add to your long-term WPM and accuracy history. They have no replay or key statistics,
+because Monkeytype never stored keystrokes for them.
+
+### Keyboard shortcuts
+
+| Shortcut | Action |
+| --- | --- |
+| `Ctrl+1` … `Ctrl+9` | Switch pages |
+| `Ctrl+I` | Import |
+| `Ctrl+E` | Export everything as JSON |
+| `Ctrl+=` / `Ctrl+-` / `Ctrl+0` | Zoom in / out / reset |
+
+### Settings
+
+- **Start at login.** Launches TypeLens in the background so tests always arrive.
+- **Notifications.** Shows a notification when a new test arrives while the window is in the background.
+- **Updates.** TypeLens checks GitHub Releases shortly after launch and every six hours. Updates download in the
+  background and install only when you click **Restart to update**.
+
+## Troubleshooting
+
+<details>
+<summary><b>Tests don't show up in the app</b></summary>
+
+- Make sure the desktop app is running. The extension holds tests until it can deliver them, and the badge shows the count.
+- Open **Data** in TypeLens and click **Sync from extension**.
+- Check that the extension is enabled on `chrome://extensions` and that its folder still exists.
+- If you reinstalled the extension, its id changed and the app still trusts the old one. Click **Reset pairing** in
+  the Extension panel on the **Data** page, then reload monkeytype.com.
+
+</details>
+
+<details>
+<summary><b>Fedora: "file /usr/lib/.build-id/... conflicts with file from package ..."</b></summary>
+
+Other Electron apps (Slack, VS Code and others) ship identical helper binaries, and RPM refuses to install two
+packages that own the same debug link. Install without those links. TypeLens doesn't need them:
+
+```bash
+sudo rpm -i --excludepath=/usr/lib/.build-id TypeLens-<version>-x86_64.rpm
+```
+
+</details>
+
+<details>
+<summary><b>Windows says "Windows protected your PC"</b></summary>
+
+The installer isn't code-signed yet. Click **More info → Run anyway**.
+
+</details>
+
+<details>
+<summary><b>I updated TypeLens but the extension is still old</b></summary>
+
+App updates don't update an unpacked extension. Download the new `TypeLens-extension-<version>.zip`, replace the
+folder's contents, and click the reload button on the extension's card in `chrome://extensions`.
+
+</details>
 
 ## How it works
 
@@ -108,77 +204,70 @@ flowchart LR
   DASH -- "stores analysed tests" --> DISK
 ```
 
-1. The **recorder** runs only on monkeytype.com, inside Monkeytype's typing box, and collects each test with its
-   key timing and result numbers.
-2. The **extension** keeps finished tests in its own local database and pushes them to the desktop app on
-   `127.0.0.1`. The app writes each test to disk before answering, so a test is only marked delivered once it is safe.
-3. The **dashboard** (the app's window) imports the tests from the app's inbox into its own database and computes
-   every statistic with the shared analysis code in `packages/core`. Nothing is recomputed from a server.
+1. The **recorder** runs only on monkeytype.com, inside Monkeytype's typing box. It is passive: it never changes an
+   event or edits the page, and it never records other fields or other sites.
+2. The **extension** stores finished tests locally and pushes them to the desktop app on `127.0.0.1`. The app writes
+   each test to disk before replying, so a test is only marked delivered once it is safe.
+3. The **dashboard** computes every statistic locally with the shared analysis engine in `packages/core`.
 
-The detailed design, including storage locations and the message contract, is in
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+The full design, including storage locations and the message contract, is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Privacy
 
-TypeLens runs entirely on your computer. There is no account, no telemetry, no analytics and no cloud service.
-The extension makes no requests to the internet. The desktop app contacts GitHub Releases only to check for updates.
-The full list of what is recorded, where it is stored and what (if anything) leaves your machine is in
-[PRIVACY.md](PRIVACY.md).
+TypeLens runs entirely on your computer. There is **no account, no telemetry, no analytics and no cloud service**.
+The extension makes no requests to the internet. The desktop app contacts GitHub only to check for updates, and its
+sync endpoint listens on `127.0.0.1` only. What is recorded, where it is stored and what (if anything) leaves your
+machine is listed in [PRIVACY.md](PRIVACY.md).
+
+You can export all of your data as JSON or CSV, or delete it, at any time from the **Data** page.
 
 ## Build from source
 
-Requirements: Node.js 22 and npm. The repository is an npm workspace.
+Requirements: **Node.js 22** and npm. The repository is an npm workspace.
 
 ```bash
-npm ci                         # install all workspaces
-npm test                       # unit tests (core, extension, web <-> extension sync)
-npm run typecheck              # strict TypeScript across the workspaces
-npm run build                  # build the extension and the dashboard
-npm run start:desktop          # run the desktop app from source (development)
-npm run dev:desktop            # desktop app with the dashboard's Vite dev server (hot reload)
-npm run dist:win               # Windows installer and .zip -> apps/desktop/release
-npm run dist:linux             # .deb and .rpm -> apps/desktop/release
+npm ci                    # install all workspaces
+npm test                  # unit tests
+npm run typecheck         # strict TypeScript across the workspaces
+npm run start:desktop     # run the desktop app from source
+npm run dev:desktop       # desktop app with hot reload
+npm run dist:linux        # .deb and .rpm   -> apps/desktop/release
+npm run dist:win          # .exe and .zip   -> apps/desktop/release
 ```
 
-Linux packages can also be built on Windows (or any machine with Docker) using the official Electron builder image:
+Linux packages can also be built anywhere Docker runs, using the official Electron builder image:
 
-```powershell
+```bash
 docker run --rm -ti -v "${PWD}:/project" -w /project electronuserland/builder /bin/bash -c "npm ci && npm run dist:linux"
 ```
 
-Run it from a clean checkout or delete `node_modules` first, because installed native modules are platform specific.
+macOS builds are not shipped. `npm run start:desktop` may work on macOS but is untested.
 
-macOS is not shipped in the releases. macOS users can try building from source (`npm run start:desktop`), but this
-is untested.
-
-## Project structure
+### Project structure
 
 ```
-apps/desktop/        Electron desktop app: window, sync endpoint on 127.0.0.1, inbox, auto-update
-apps/extension/      Chrome MV3 extension: recorder on monkeytype.com, local store, popup, bridge
-apps/web/            React + Vite dashboard (the screens shown in the desktop app)
-packages/core/       analysis engine (pure TypeScript) and the data contract (src/schema.ts)
-docs/                architecture and release notes
-.github/             CI, release workflow, issue and pull request templates
+apps/desktop/      Electron app: window, local sync endpoint, inbox, auto-update
+apps/extension/    Chrome MV3 extension: recorder on monkeytype.com, local store, popup
+apps/web/          React + Vite dashboard (the screens shown in the desktop app)
+packages/core/     analysis engine (pure TypeScript) and the data contract
+docs/              architecture, release process and screenshots
+.github/           CI, release workflow, issue and pull request templates
 ```
 
 ## Contributing
 
 Bug reports, feature ideas and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
-Security issues must be reported privately, as described in [SECURITY.md](SECURITY.md). This project follows the
+Report security issues privately as described in [SECURITY.md](SECURITY.md). This project follows the
 [Code of Conduct](CODE_OF_CONDUCT.md).
 
-## License
+## License and acknowledgements
 
 TypeLens is released under the [MIT License](LICENSE).
 
-## Acknowledgements and disclaimer
-
-- TypeLens is an independent project and is **not affiliated with, endorsed by or sponsored by Monkeytype or
-  TypeQuicker**. Monkeytype and TypeQuicker are trademarks of their respective owners.
-- Monkeytype is licensed under the GPL. TypeLens does not copy Monkeytype's code: it reimplements the published
-  formulas (for example WPM and accuracy) in its own code. The practice word list was compiled for this project.
-- The dashboard uses the Hack font, React, Chart.js, Electron and other open-source components; see each package's
-  dependencies for their licenses.
+- TypeLens is **not affiliated with, endorsed by or sponsored by Monkeytype or TypeQuicker**. Monkeytype and
+  TypeQuicker are trademarks of their respective owners. TypeLens is inspired by TypeQuicker's analytics.
+- Monkeytype is licensed under the GPL. TypeLens does not copy Monkeytype's code. It reimplements the published
+  formulas (for example WPM and accuracy). The practice word list was compiled for this project.
+- Built with Electron, React, Chart.js and the Hack font. See each package's dependencies for their licenses.
 - The analysis is an estimate built from the keystrokes your browser reports. Timing depends on your keyboard, OS and
   browser, so treat the numbers as a guide, not an official score.
