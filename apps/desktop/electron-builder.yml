@@ -76,3 +76,7 @@ deb:
   # setting depends replaces electron-builder's defaults, so they are listed here too.
   # libasound2t64 is the Ubuntu 24.04+ / Debian 13 name; libasound2 is the older name (alternatives).
   depends: [libgtk-3-0, libnotify4, libnss3, libxss1, libxtst6, xdg-utils, libatspi2.0-0, libuuid1, libsecret-1-0, "libasound2t64 | libasound2", libgbm1]
+rpm:
+  # Electron apps ship identical helper binaries, so their /usr/lib/.build-id debug links collide and dnf refuses to
+  # install next to e.g. Slack or VS Code. TypeLens does not need those links.
+  fpm: ["--rpm-rpmbuild-define=_build_id_links none"]

@@ -2,7 +2,7 @@
   "name": "@typelens/desktop",
   "productName": "TypeLens",
   "desktopName": "typelens.desktop",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Local-first typing analytics for Monkeytype: per-key, n-gram, finger and word stats, replays and practice text.",
   "license": "MIT",

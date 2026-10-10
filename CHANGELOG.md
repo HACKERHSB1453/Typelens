@@ -7,7 +7,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-## [1.0.0] - RELEASE_DATE_PLACEHOLDER
+## [1.0.1] - 2026-10-10
+
+### Fixed
+
+- **Tests were saved only when the next test started, marked as restarted.** Monkeytype's new result screen is added
+  to the page when a test ends instead of being un-hidden, and its numbers moved. The recorder now detects it, reads
+  the stats by their labels (the old layout still works), and no longer warns that `#result` is missing.
+- **Fedora: the `.rpm` could not be installed next to other Electron apps** (Slack, VS Code, ...) because of
+  conflicting `/usr/lib/.build-id` links. The package no longer ships those links.
+
+### Added
+
+- **Hover anywhere on the result graph.** The graph now has a time axis and shows wpm so far, raw speed and errors
+  so far at the exact moment under the pointer, not only at whole seconds.
+
+## [1.0.0] - 2026-10-10
 
 First public release of TypeLens: local, private typing analytics for Monkeytype.
 
