@@ -16,6 +16,7 @@ and generate practice text that targets your weak spots. Everything stays on you
 
 [**Download**](https://github.com/HACKERHSB1453/Typelens/releases/latest) ·
 [Getting started](#getting-started) ·
+[Updating](#updating) ·
 [Using TypeLens](#using-typelens) ·
 [Privacy](#privacy) ·
 [Build from source](#build-from-source)
@@ -79,8 +80,7 @@ Download the package for your system from the
 | **Ubuntu 22.04+ / Debian 12+** | `TypeLens-<version>-amd64.deb` | `sudo apt install ./TypeLens-<version>-amd64.deb` |
 | **Fedora / RHEL family** | `TypeLens-<version>-x86_64.rpm` | `sudo dnf install ./TypeLens-<version>-x86_64.rpm` |
 
-Install with `apt` or `dnf` so the required libraries are pulled in automatically. On Fedora, if the install fails
-with a `/usr/lib/.build-id/...` conflict, see [Troubleshooting](#troubleshooting).
+Install with `apt` or `dnf` so the required libraries are pulled in automatically.
 
 > **macOS first launch:** the app is not notarized by Apple yet, so macOS says it *"cannot be opened because the
 > developer cannot be verified"*. Right-click (or Control-click) TypeLens in Applications, choose **Open**, then
@@ -95,13 +95,22 @@ with a `/usr/lib/.build-id/...` conflict, see [Troubleshooting](#troubleshooting
 
 The extension is what records your tests. It works in **Chrome, Edge and Brave** (version 110 or newer).
 
-1. Get the extension folder. In TypeLens choose **File → Open browser-extension folder**, or download
-   `TypeLens-extension-<version>.zip` from the release and extract it somewhere permanent.
-2. Open `chrome://extensions` (Edge: `edge://extensions`, Brave: `brave://extensions`).
-3. Turn on **Developer mode** (top-right toggle).
-4. Click **Load unpacked** and select the folder that contains `manifest.json`.
+1. Open `chrome://extensions` (Edge: `edge://extensions`, Brave: `brave://extensions`).
+2. Turn on **Developer mode** (top-right toggle).
+3. Click **Load unpacked** and select the extension folder that comes with the app:
 
-Keep that folder where it is. The browser loads the extension from it, so moving or deleting it disables the extension.
+   | System | Extension folder |
+   | --- | --- |
+   | Windows | `%LOCALAPPDATA%\Programs\TypeLens\resources\extension` (default install location) |
+   | macOS | `/Applications/TypeLens.app/Contents/Resources/extension` (in the folder picker, press `Cmd+Shift+G` and paste the path) |
+   | Linux | `/opt/TypeLens/resources/extension` |
+
+   In TypeLens, **File → Open browser-extension folder** opens it for you.
+
+**Use the app's folder.** When TypeLens updates, it replaces this folder with the matching new extension, so the
+extension stays up to date with the app (see [Updating](#updating)). You can also download
+`TypeLens-extension-<version>.zip` from the release and extract it somewhere permanent, but then you have to update it
+by hand. Either way, don't move or delete the folder: the browser loads the extension from it.
 
 ### 3. Take a test
 
@@ -112,6 +121,20 @@ Keep that folder where it is. The browser loads the extension from it, so moving
 The first extension that connects is paired with the app automatically. The extension's toolbar badge shows how many
 tests are still waiting to be delivered, for example while the app is closed. Nothing is lost: they are sent the next
 time the app runs.
+
+## Updating
+
+**The app.** On Windows and Linux, TypeLens checks for new versions shortly after it starts and every six hours. An
+update downloads in the background and installs when you click **Restart to update** (Linux asks for your password,
+because the package manager installs it). You can also check by hand in **Settings**. On macOS, and for the portable
+Windows `.zip`, download the new version from the [releases page](https://github.com/HACKERHSB1453/Typelens/releases).
+
+**The extension.** If you loaded it from the app's folder, an app update already put the new extension there. The
+browser picks it up the next time it restarts, or right away when you click the reload button (↻) on the TypeLens card
+in `chrome://extensions`. If you loaded it from an extracted zip, download the new
+`TypeLens-extension-<version>.zip`, replace the folder's contents and click reload.
+
+The changes in each version are listed in the [changelog](CHANGELOG.md).
 
 ## Using TypeLens
 
@@ -189,8 +212,8 @@ Open **Settings** from the bottom of the sidebar (or press `Ctrl+,`, `Cmd+,` on 
 <details>
 <summary><b>Fedora: "file /usr/lib/.build-id/... conflicts with file from package ..."</b></summary>
 
-Other Electron apps (Slack, VS Code and others) ship identical helper binaries, and RPM refuses to install two
-packages that own the same debug link. Install without those links. TypeLens doesn't need them:
+This only affects TypeLens 1.0.0, which clashed with other Electron apps (Slack, VS Code and others). Version 1.0.1
+and later install normally. To install 1.0.0 anyway, leave out the conflicting debug links:
 
 ```bash
 sudo rpm -i --excludepath=/usr/lib/.build-id TypeLens-<version>-x86_64.rpm
@@ -220,8 +243,10 @@ The installer isn't code-signed yet. Click **More info → Run anyway**.
 <details>
 <summary><b>I updated TypeLens but the extension is still old</b></summary>
 
-App updates don't update an unpacked extension. Download the new `TypeLens-extension-<version>.zip`, replace the
-folder's contents, and click the reload button on the extension's card in `chrome://extensions`.
+The browser only reads the extension's files when it starts or when you reload the extension. Click the reload button
+(↻) on the TypeLens card in `chrome://extensions`. If it is still old, check which folder it was loaded from (shown on
+the card): if it's not the app's folder, see [Load the browser extension](#2-load-the-browser-extension) and load it
+from there instead.
 
 </details>
 
