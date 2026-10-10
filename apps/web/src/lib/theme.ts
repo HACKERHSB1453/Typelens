@@ -48,3 +48,22 @@ export function fontFamily(): string {
   if (typeof document === 'undefined') return 'Hack, monospace';
   return getComputedStyle(document.documentElement).getPropertyValue('--font').trim() || 'Hack, monospace';
 }
+
+/**
+ * The current theme colours as one shared object, updated in place when the theme changes (refreshLiveColors),
+ * so modules that hold on to it (chart defaults, SVG fills) always read the active theme.
+ */
+export const liveColors: ThemeColors = themeColors();
+
+const listeners = new Set<() => void>();
+
+/** Re-reads the CSS tokens after a theme change and notifies subscribers (chart defaults). */
+export function refreshLiveColors(): void {
+  Object.assign(liveColors, themeColors());
+  listeners.forEach((l) => l());
+}
+
+export function onLiveColorsChange(cb: () => void): () => void {
+  listeners.add(cb);
+  return () => listeners.delete(cb);
+}

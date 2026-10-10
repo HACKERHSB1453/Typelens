@@ -27,6 +27,10 @@ For each test it stores:
   duration), plus quality flags, for example when the derived numbers disagree with Monkeytype's.
 - Technical metadata: the test's start time, a generated session id, and the extension version.
 
+Separately from tests, it reads the six colours of the theme you use on Monkeytype (background, accent, text and so
+on, from the page's styles) and the theme's name, so the dashboard can match it when you choose **Sync from
+Monkeytype** in Settings. Nothing else about your Monkeytype settings is kept.
+
 It does **not** record:
 
 - Anything typed outside `#wordsInput`: the login form, search, command line, settings fields, or any other site.
@@ -39,10 +43,10 @@ The extension never cancels, changes or blocks an event, and it does not edit th
 
 | Stage | Where | Notes |
 | --- | --- | --- |
-| Recorder | The extension's own IndexedDB database `typelens`, inside your browser profile | Holds tests until they are delivered to the desktop app. The extension also keeps small state in its storage: the pause switch, the recorder's health check and the last delivery status. |
+| Recorder | The extension's own IndexedDB database `typelens`, inside your browser profile | Holds tests until they are delivered to the desktop app. The extension also keeps small state in its storage: the pause switch, the recorder's health check, the last delivery status and your Monkeytype theme colours. |
 | Desktop inbox | The app's profile folder, `inbox/` (one JSON file per test) | Written before the app acknowledges a test. The app moves it into the store straight away, so it is normally empty. |
 | Sessions | The app's profile folder, `data/sessions/` (one JSON file per test) | Analysed tests shown in the dashboard. |
-| Preferences | `data/prefs.json` in the app's profile folder | The data source choice and the last 20 generated practice texts. |
+| Preferences | `data/prefs.json` in the app's profile folder | The data source choice, the last 20 generated practice texts, and the theme choice (including custom colours and the last Monkeytype theme). |
 | Settings | `settings.json` in the app's profile folder | Window size and position, the paired extension id, and the start-at-login and notification choices. |
 | Logs | `logs/main.log` in the app's profile folder (the previous log is kept as `main.log.old`) | Start-up and error messages and session counts. No keystroke content. |
 
@@ -52,6 +56,7 @@ browser's IndexedDB database `typelens-web` and its preferences in the browser's
 Profile folders:
 
 - Windows: `%APPDATA%\TypeLens`
+- macOS: `~/Library/Application Support/TypeLens`
 - Linux: `~/.config/TypeLens`
 
 TypeLens does not encrypt its data. Anyone with access to your user account can read these files, so use your
@@ -74,7 +79,8 @@ analysis screens cannot send your data anywhere.
 
 - **Pause recording:** the extension popup can pause recording.
 - **Export:** the dashboard's Data page exports everything as JSON, and sessions and keystrokes as CSV.
-- **Delete:** delete a single session, or all data behind a typed `DELETE` confirmation, on the Data page.
+- **Delete:** delete a single session on the Data page, or all data behind a typed `DELETE` confirmation in
+  Settings → Danger zone.
 - **Uninstall:** removing the extension deletes its local database. Uninstalling the desktop app does not necessarily
   remove your profile folder; delete it yourself if you want all data gone.
 - **Reset pairing:** the desktop app can forget the paired extension, so a different extension can pair.

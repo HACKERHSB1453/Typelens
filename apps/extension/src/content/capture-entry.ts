@@ -7,7 +7,7 @@
  */
 import type { Session } from '@typelens/core/schema';
 import { Recorder } from '../recorder';
-import { attachCapture } from './capture';
+import { attachCapture, readMonkeytypeTheme } from './capture';
 import type { Health } from '../selectors';
 
 interface Live {
@@ -75,5 +75,28 @@ function start(): void {
   // lets the dashboard tell "no recorder on Monkeytype" apart from "recorded nothing yet"
   chrome.storage.local.set({ recorderSeenAt: Date.now() }).catch(() => undefined);
 
-  g.__typelensCapture = { alive: runtimeAlive, detach: cap.detach };
+  // The user's Monkeytype theme, so the dashboard can follow it. Monkeytype swaps themes without reloading, so
+  // look again every few seconds; only a change is written (the background then tells the desktop app).
+  let lastTheme = '';
+  const checkTheme = (): void => {
+    try {
+      const theme = readMonkeytypeTheme(document, window, localStorage.getItem('config'));
+      const key = JSON.stringify(theme);
+      if (!theme || key === lastTheme) return;
+      lastTheme = key;
+      chrome.storage.local.set({ mtTheme: theme }).catch(() => undefined);
+    } catch {
+      /* never throw into the page */
+    }
+  };
+  checkTheme();
+  const themeTimer = setInterval(checkTheme, 5000);
+
+  g.__typelensCapture = {
+    alive: runtimeAlive,
+    detach: () => {
+      clearInterval(themeTimer);
+      cap.detach();
+    },
+  };
 }

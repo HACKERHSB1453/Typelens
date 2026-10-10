@@ -10,9 +10,10 @@ import {
   TrendingUp,
   Target,
   Database,
-  Github,
+  Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SETTINGS_PATH } from '@typelens/host-contract';
 
 interface NavItem {
   to: string;
@@ -76,6 +77,22 @@ export function Sidebar() {
           })}
         </ul>
       </nav>
+      <div className="border-t border-[var(--sub-2)] py-2">
+        <NavLink
+          to={SETTINGS_PATH}
+          className={({ isActive }) =>
+            cn(
+              'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition md:px-4',
+              isActive
+                ? 'bg-main/10 text-[var(--main)] font-semibold'
+                : 'text-[var(--sub)] hover:bg-[var(--bg-elev)] hover:text-[var(--text)]',
+            )
+          }
+        >
+          <Settings className="h-4 w-4 shrink-0" aria-hidden />
+          <span className="hidden md:inline">Settings</span>
+        </NavLink>
+      </div>
       <div className="hidden border-t border-[var(--sub-2)] px-4 py-3 text-[10px] text-[var(--sub)] md:block">
         {src.effective === 'demo' ? 'Showing demo data' : `Your data · ${src.realCount ?? 0} tests`}
       </div>

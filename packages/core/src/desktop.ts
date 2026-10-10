@@ -22,11 +22,46 @@ export const DESKTOP_PUSH_BATCH = 20;
 /** Largest request body the app accepts. */
 export const DESKTOP_MAX_BODY = 32 * 1024 * 1024;
 
+/**
+ * The colours of the theme the user has on monkeytype.com, read from the page's CSS variables (so built-in and
+ * custom Monkeytype themes both work). Lets the dashboard follow the user's Monkeytype theme.
+ */
+export interface MonkeytypeTheme {
+  /** Monkeytype's theme id ("serika_dark"), or "custom" for a custom theme */
+  name: string;
+  /** #rrggbb */
+  bg: string;
+  main: string;
+  sub: string;
+  subAlt: string;
+  text: string;
+  error: string;
+}
+export const MONKEYTYPE_THEME_KEYS = ['bg', 'main', 'sub', 'subAlt', 'text', 'error'] as const;
+
+const HEX = /^#[0-9a-f]{6}$/;
+
+/** Accepts only a well-formed theme (lower-case #rrggbb colours, short name); anything else is null. */
+export function sanitizeMonkeytypeTheme(x: unknown): MonkeytypeTheme | null {
+  if (!x || typeof x !== 'object') return null;
+  const r = x as Record<string, unknown>;
+  const out: Record<string, string> = {};
+  for (const k of MONKEYTYPE_THEME_KEYS) {
+    const v = typeof r[k] === 'string' ? (r[k] as string).trim().toLowerCase() : '';
+    if (!HEX.test(v)) return null;
+    out[k] = v;
+  }
+  const name = typeof r.name === 'string' ? r.name.replace(/[^\w .-]/g, '').slice(0, 40) : '';
+  return { name: name || 'custom', ...(out as Omit<MonkeytypeTheme, 'name'>) };
+}
+
 export interface DesktopHello {
   extVersion: string;
   /** last time a recorder was alive on a Monkeytype tab (ms epoch) */
   recorderSeenAt: number | null;
   health: { ok: boolean; missing: string[] } | null;
+  /** the Monkeytype theme last seen on monkeytype.com (older extensions do not send it) */
+  theme?: MonkeytypeTheme | null;
 }
 export interface DesktopHelloReply {
   app: 'typelens';

@@ -31,7 +31,7 @@ function fakeBridge(held: string[], opts: { alive?: boolean } = {}): Bridge & { 
     }
     return { ok: opts.alive ?? true };
   }) as Bridge['request'];
-  return { request, ping: async () => opts.alive ?? true, acked, asked };
+  return { request, ping: async () => opts.alive ?? true, monkeytypeTheme: async () => null, acked, asked };
 }
 
 let store: ReturnType<typeof createStore>;

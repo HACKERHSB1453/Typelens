@@ -61,6 +61,11 @@ function ensureSyncAlarm(): void {
   });
 }
 
+// a new Monkeytype theme reaches the desktop app right away instead of with the next alarm
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && changes.mtTheme) void pushToDesktop(desktopDeps);
+});
+
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === SYNC_ALARM) void pushToDesktop(desktopDeps);
 });

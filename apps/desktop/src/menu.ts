@@ -1,6 +1,6 @@
 /** The application menu. Accelerators are real shortcuts that work even when the menu bar is hidden. */
 import { Menu, type MenuItemConstructorOptions } from 'electron';
-import { NAV_PATHS, type MenuAction } from '@typelens/host-contract';
+import { NAV_PATHS, SETTINGS_PATH, type MenuAction } from '@typelens/host-contract';
 
 const PAGE_LABELS = ['Overview', 'Keys', 'N-grams', 'Words', 'Fingers', 'Replay', 'Progress', 'Practice', 'Data'];
 
@@ -28,6 +28,8 @@ export function buildMenu(a: MenuActions): Menu {
               { label: 'About TypeLens', click: a.about },
               { label: 'Check for updates...', click: a.checkForUpdates },
               { type: 'separator' as const },
+              { label: 'Settings...', accelerator: 'Cmd+,', click: () => a.navigate(SETTINGS_PATH) },
+              { type: 'separator' as const },
               { role: 'hide' as const },
               { role: 'hideOthers' as const },
               { role: 'unhide' as const },
@@ -45,7 +47,14 @@ export function buildMenu(a: MenuActions): Menu {
         { type: 'separator' },
         { label: 'Open data folder', click: a.openDataFolder },
         { label: 'Open browser-extension folder', click: a.openExtensionFolder },
-        ...(mac ? [] : [{ type: 'separator' as const }, { role: 'quit' as const }]),
+        ...(mac
+          ? []
+          : [
+              { type: 'separator' as const },
+              { label: 'Settings...', accelerator: 'Ctrl+,', click: () => a.navigate(SETTINGS_PATH) },
+              { type: 'separator' as const },
+              { role: 'quit' as const },
+            ]),
       ],
     },
     { role: 'editMenu' },

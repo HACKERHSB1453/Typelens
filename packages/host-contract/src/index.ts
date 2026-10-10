@@ -9,6 +9,7 @@
  * Types only: keep this package free of runtime code so every side can import it cheaply.
  */
 import type { Session } from '@typelens/core/schema';
+import type { MonkeytypeTheme } from '@typelens/core/desktop';
 
 export type Unsubscribe = () => void;
 
@@ -101,6 +102,8 @@ export interface ExtensionStatus {
   extensionFolder: string | null;
   /** sessions delivered but not yet stored (normally 0: the desktop host stores them immediately) */
   pending: number;
+  /** the user's Monkeytype theme as last reported by the extension (null: not known yet) */
+  monkeytypeTheme: MonkeytypeTheme | null;
 }
 
 export interface PendingIds {
@@ -208,6 +211,10 @@ declare global {
 export const PREF_SOURCE = 'typelens.source';
 export const PREF_PRACTICE_GENERATED = 'typelens.practice.generated';
 export const PREF_PRACTICE_HISTORY = 'typelens.practice.history';
+export const PREF_THEME = 'typelens.theme';
+
+/** The settings page; not part of NAV_PATHS (those are the Ctrl/Cmd+1..9 pages). Opened with Ctrl/Cmd+, */
+export const SETTINGS_PATH = '/settings';
 
 /** Dashboard pages in menu order (Ctrl/Cmd+1..9). Shared so the sidebar and the desktop menu cannot drift. */
 export const NAV_PATHS = ['/', '/keys', '/ngrams', '/words', '/fingers', '/replay', '/progress', '/practice', '/data'] as const;

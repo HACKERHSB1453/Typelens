@@ -3,6 +3,8 @@
  * this app's origin) answers four whitelisted actions over window.postMessage — see
  * apps/extension/src/protocol.ts. This app never gets raw access to chrome.* or the extension's database.
  */
+import { sanitizeMonkeytypeTheme, type MonkeytypeTheme } from '@typelens/core/desktop';
+
 const CHANNEL = 'typelens';
 
 export type BridgeAction = 'ping' | 'list' | 'get' | 'ack';
@@ -11,6 +13,8 @@ export interface Bridge {
   request<T>(action: BridgeAction, payload?: { after?: number; ids?: string[] }): Promise<T>;
   /** true when the extension answered a ping */
   ping(): Promise<boolean>;
+  /** the Monkeytype theme the extension last saw (null when unknown or the extension is absent) */
+  monkeytypeTheme(): Promise<MonkeytypeTheme | null>;
 }
 
 interface Reply {
@@ -52,6 +56,13 @@ export function createBridge(win: Window = window, timeoutMs = 2500): Bridge {
         return r?.ok === true;
       } catch {
         return false;
+      }
+    },
+    async monkeytypeTheme() {
+      try {
+        return sanitizeMonkeytypeTheme((await request<{ theme?: unknown }>('ping'))?.theme);
+      } catch {
+        return null;
       }
     },
   };

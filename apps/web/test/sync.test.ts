@@ -1,4 +1,5 @@
 import 'fake-indexeddb/auto';
+import { sanitizeMonkeytypeTheme } from '@typelens/core/desktop';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { IDBFactory } from 'fake-indexeddb';
 import { makeSession, repeatWords, type Session } from '@typelens/core';
@@ -25,6 +26,13 @@ function fakeBridge(deps: HandlerDeps, origin = APP): Bridge {
         return ((await request<{ ok?: boolean }>('ping')) ?? {}).ok === true;
       } catch {
         return false;
+      }
+    },
+    monkeytypeTheme: async () => {
+      try {
+        return sanitizeMonkeytypeTheme((await request<{ theme?: unknown }>('ping'))?.theme);
+      } catch {
+        return null;
       }
     },
   };

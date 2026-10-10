@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Session } from '@typelens/core/schema';
 import { Recorder } from '../src/recorder';
-import { attachCapture, parseDuration, parseResult, readWords, toSessionConfig } from '../src/content/capture';
+import { attachCapture, normalizeColor, parseDuration, parseResult, readMonkeytypeTheme, readWords, toSessionConfig } from '../src/content/capture';
 import { healthCheck } from '../src/selectors';
 
 const WORDS = ['long', 'increase', 'before', 'any', 'still', 'help'];
@@ -461,5 +461,39 @@ describe('parseDuration', () => {
     expect(parseDuration('1m 5s')).toBe(65);
     expect(parseDuration('2h 1m 3s')).toBe(7263);
     expect(Number.isNaN(parseDuration(''))).toBe(true);
+  });
+});
+describe('Monkeytype theme', () => {
+  it('normalizeColor accepts the colour formats a stylesheet can produce', () => {
+    expect(normalizeColor(' #E2B714 ')).toBe('#e2b714');
+    expect(normalizeColor('#abc')).toBe('#aabbcc');
+    expect(normalizeColor('#e2b714ff')).toBe('#e2b714');
+    expect(normalizeColor('rgb(50, 52, 55)')).toBe('#323437');
+    expect(normalizeColor('rgba(50 52 55 / 0.5)')).toBe('#323437');
+    expect(normalizeColor('var(--x)')).toBe('');
+  });
+
+  /** a window whose computed style has Monkeytype's variables (values as on the live site) */
+  function mtWindow(vars: Record<string, string>): Window {
+    return { getComputedStyle: () => ({ getPropertyValue: (n: string) => vars[n] ?? '' }) } as unknown as Window;
+  }
+  const SERIKA = { '--bg-color': '#323437', '--main-color': '#e2b714', '--sub-color': '#646669', '--sub-alt-color': '#2c2e31', '--text-color': '#d1d0c5', '--error-color': '#ca4754' };
+
+  it('reads the six colours and the theme name from the page', () => {
+    expect(readMonkeytypeTheme(document, mtWindow(SERIKA), JSON.stringify({ theme: 'serika_dark', customTheme: false }))).toEqual({
+      name: 'serika_dark',
+      bg: '#323437',
+      main: '#e2b714',
+      sub: '#646669',
+      subAlt: '#2c2e31',
+      text: '#d1d0c5',
+      error: '#ca4754',
+    });
+    expect(readMonkeytypeTheme(document, mtWindow(SERIKA), JSON.stringify({ theme: 'serika_dark', customTheme: true }))?.name).toBe('custom');
+    expect(readMonkeytypeTheme(document, mtWindow(SERIKA), null)?.name).toBe('custom');
+  });
+
+  it("is null when Monkeytype's variables are missing", () => {
+    expect(readMonkeytypeTheme(document, mtWindow({ ...SERIKA, '--main-color': '' }), null)).toBeNull();
   });
 });

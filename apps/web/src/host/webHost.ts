@@ -136,7 +136,9 @@ export function createWebHost(deps: WebHostDeps = {}): TypeLensHost {
 
     extension: {
       async status() {
-        return { transport: 'bridge', connected: await getBridge().ping(), endpoint: null, paired: null, extensionFolder: null, pending: 0 };
+        const bridge = getBridge();
+        const [connected, monkeytypeTheme] = await Promise.all([bridge.ping(), bridge.monkeytypeTheme()]);
+        return { transport: 'bridge', connected, endpoint: null, paired: null, extensionFolder: null, pending: 0, monkeytypeTheme };
       },
       async listPending() {
         const { ids } = await getBridge().request<{ ids: string[] }>('list');

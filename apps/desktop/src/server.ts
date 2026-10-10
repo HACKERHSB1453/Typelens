@@ -15,9 +15,11 @@ import {
   DESKTOP_HOST,
   DESKTOP_MAX_BODY,
   DESKTOP_SESSIONS_PATH,
+  sanitizeMonkeytypeTheme,
   type DesktopHello,
   type DesktopHelloReply,
   type DesktopPushReply,
+  type MonkeytypeTheme,
 } from '@typelens/core/desktop';
 import { validateSession } from '@typelens/core/export';
 import type { Inbox } from './inbox';
@@ -28,6 +30,7 @@ export interface ExtensionState {
   lastSeenAt: number | null;
   recorderSeenAt: number | null;
   health: { ok: boolean; missing: string[] } | null;
+  theme: MonkeytypeTheme | null;
 }
 
 export interface Pairing {
@@ -101,7 +104,7 @@ export function createSyncServer(opts: SyncServerOptions): SyncServer {
   /** the real port: differs from opts.port only when 0 (tests let the OS pick one) */
   let boundPort = opts.port;
   const hostAllowed = (h: string): boolean => h === `${DESKTOP_HOST}:${boundPort}` || h === `localhost:${boundPort}`;
-  let ext: ExtensionState = { id: opts.pairing.get(), version: null, lastSeenAt: null, recorderSeenAt: null, health: null };
+  let ext: ExtensionState = { id: opts.pairing.get(), version: null, lastSeenAt: null, recorderSeenAt: null, health: null, theme: null };
 
   /** returns the calling extension's id, or throws */
   function authorise(req: http.IncomingMessage): string {
@@ -142,6 +145,8 @@ export function createSyncServer(opts: SyncServerOptions): SyncServer {
         version: typeof h.extVersion === 'string' ? h.extVersion.slice(0, 32) : null,
         recorderSeenAt: typeof h.recorderSeenAt === 'number' ? h.recorderSeenAt : null,
         health: isHealth(h.health) ? h.health : null,
+        // keep the last known theme when an older extension (or one that has not seen Monkeytype yet) sends none
+        theme: sanitizeMonkeytypeTheme(h.theme) ?? ext.theme,
       });
       const reply: DesktopHelloReply = { app: 'typelens', api: DESKTOP_API, version: opts.appVersion };
       return { status: 200, body: reply };

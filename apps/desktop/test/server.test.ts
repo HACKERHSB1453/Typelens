@@ -64,6 +64,17 @@ describe('sync server', () => {
     expect(states.at(-1)).toMatchObject({ version: '0.2.0', recorderSeenAt: 123, health: { ok: false, missing: ['result'] } });
   });
 
+  it('keeps the Monkeytype theme from hello, and keeps the last one when a hello has none', async () => {
+    const { post, states } = await boot();
+    const theme = { name: 'serika_dark', bg: '#323437', main: '#e2b714', sub: '#646669', subAlt: '#2c2e31', text: '#d1d0c5', error: '#ca4754' };
+    await post(DESKTOP_HELLO_PATH, { extVersion: '1.0.2', recorderSeenAt: null, health: null, theme });
+    expect(states.at(-1)?.theme).toEqual(theme);
+    await post(DESKTOP_HELLO_PATH, { extVersion: '1.0.2', recorderSeenAt: null, health: null });
+    expect(states.at(-1)?.theme).toEqual(theme);
+    await post(DESKTOP_HELLO_PATH, { extVersion: '1.0.2', recorderSeenAt: null, health: null, theme: { ...theme, bg: 'url(evil)' } });
+    expect(states.at(-1)?.theme).toEqual(theme); // malformed colours are ignored
+  });
+
   it('refuses requests without an extension Origin (web pages cannot call it)', async () => {
     const { post, inbox, base } = await boot();
     const none = await fetch(base + DESKTOP_HELLO_PATH, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });

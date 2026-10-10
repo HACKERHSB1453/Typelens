@@ -1,3 +1,4 @@
+import { sanitizeMonkeytypeTheme } from '../src/desktop';
 import { describe, it, expect } from 'vitest'
 import { wpm, rawWpm, accuracy, consistency, crossCheck } from '../src/monkeytype'
 import type { Session } from '../src/schema'
@@ -169,3 +170,17 @@ describe('monkeytype formulas', () => {
     })
   })
 })
+
+describe('sanitizeMonkeytypeTheme', () => {
+  const ok = { name: 'serika_dark', bg: '#323437', main: '#E2B714', sub: '#646669', subAlt: '#2c2e31', text: '#d1d0c5', error: '#ca4754' };
+  it('keeps a well-formed theme and lower-cases colours', () => {
+    expect(sanitizeMonkeytypeTheme(ok)).toEqual({ ...ok, main: '#e2b714' });
+  });
+  it('rejects anything that is not six #rrggbb colours, and cleans the name', () => {
+    expect(sanitizeMonkeytypeTheme(null)).toBeNull();
+    expect(sanitizeMonkeytypeTheme({ ...ok, bg: 'url(x)' })).toBeNull();
+    expect(sanitizeMonkeytypeTheme({ ...ok, subAlt: undefined })).toBeNull();
+    expect(sanitizeMonkeytypeTheme({ ...ok, name: '<b>x</b>' })?.name).toBe('bxb');
+    expect(sanitizeMonkeytypeTheme({ ...ok, name: undefined })?.name).toBe('custom');
+  });
+});

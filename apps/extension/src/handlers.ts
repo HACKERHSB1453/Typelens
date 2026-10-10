@@ -5,6 +5,7 @@
  *   sync:*        <- the web-app origins only (via the bridge content script)
  *   popup/export/clear/popup:sync <- extension pages only
  */
+import { sanitizeMonkeytypeTheme } from '@typelens/core/desktop';
 import type { Session } from '@typelens/core/schema';
 import type { Db } from './db';
 import { isBridgeOrigin, isMonkeytypeUrl } from './bridge-origins';
@@ -65,8 +66,14 @@ export async function handleMessage(msg: Msg, senderUrl: string | undefined, dep
     case 'sync:ping':
       if (!isBridgeOrigin(senderUrl)) throw new Error('forbidden');
       {
-        const st = await deps.storage.get(['recorderSeenAt', 'health']);
-        return { ok: true, version: deps.extVersion, recorderSeenAt: typeof st.recorderSeenAt === 'number' ? st.recorderSeenAt : null, health: st.health ?? null };
+        const st = await deps.storage.get(['recorderSeenAt', 'health', 'mtTheme']);
+        return {
+          ok: true,
+          version: deps.extVersion,
+          recorderSeenAt: typeof st.recorderSeenAt === 'number' ? st.recorderSeenAt : null,
+          health: st.health ?? null,
+          theme: sanitizeMonkeytypeTheme(st.mtTheme),
+        };
       }
     case 'sync:list': {
       if (!isBridgeOrigin(senderUrl)) throw new Error('forbidden');

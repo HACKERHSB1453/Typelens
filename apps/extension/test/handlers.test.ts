@@ -85,9 +85,12 @@ describe('handleMessage authorisation', () => {
       await expect(handleMessage({ type: 'sync:get', ids: ['s1'] }, bad, deps)).rejects.toThrow('forbidden');
       await expect(handleMessage({ type: 'sync:ack', ids: ['s1'] }, bad, deps)).rejects.toThrow('forbidden');
     }
-    await expect(handleMessage({ type: 'sync:ping' }, APP, deps)).resolves.toEqual({ ok: true, version: '0.1.0', recorderSeenAt: null, health: null });
+    await expect(handleMessage({ type: 'sync:ping' }, APP, deps)).resolves.toEqual({ ok: true, version: '0.1.0', recorderSeenAt: null, health: null, theme: null });
     store.recorderSeenAt = 123;
     await expect(handleMessage({ type: 'sync:ping' }, APP, deps)).resolves.toMatchObject({ recorderSeenAt: 123 });
+    const theme = { name: 'nord', bg: '#2e3440', main: '#88c0d0', sub: '#7b88a1', subAlt: '#3b4252', text: '#eceff4', error: '#bf616a' };
+    store.mtTheme = theme;
+    await expect(handleMessage({ type: 'sync:ping' }, APP, deps)).resolves.toMatchObject({ theme });
     await expect(handleMessage({ type: 'sync:ping' }, 'http://127.0.0.1:5173/x', deps)).resolves.toMatchObject({ ok: true });
   });
 

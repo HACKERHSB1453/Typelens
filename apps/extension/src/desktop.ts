@@ -8,6 +8,7 @@ import {
   DESKTOP_ORIGIN,
   DESKTOP_PUSH_BATCH,
   DESKTOP_SESSIONS_PATH,
+  sanitizeMonkeytypeTheme,
   type DesktopHello,
   type DesktopHelloReply,
   type DesktopPushReply,
@@ -89,11 +90,12 @@ async function post(d: DesktopDeps, path: string, body: unknown, timeoutMs: numb
 }
 
 async function deliver(d: DesktopDeps): Promise<{ appVersion: string; delivered: number }> {
-  const st = await d.storage.get(['recorderSeenAt', 'health']);
+  const st = await d.storage.get(['recorderSeenAt', 'health', 'mtTheme']);
   const hello: DesktopHello = {
     extVersion: d.extVersion,
     recorderSeenAt: typeof st.recorderSeenAt === 'number' ? st.recorderSeenAt : null,
     health: (st.health as DesktopHello['health']) ?? null,
+    theme: sanitizeMonkeytypeTheme(st.mtTheme),
   };
 
   let r: Response;

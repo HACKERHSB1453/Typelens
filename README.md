@@ -128,7 +128,7 @@ The sidebar has one page per kind of analysis. The filter bar at the top applies
 | **Replay** | What actually happened in a specific test? Watch it back at 0.5×–4× with a live keyboard. |
 | **Progress** | Am I improving? Long-term charts, improved and regressed n-grams, and streaks. |
 | **Practice** | What should I practise? Generates targeted text from your weak spots. |
-| **Data** | Sync, import, export, extension pairing, and deleting data. |
+| **Data** | Sync, import, export, extension pairing, and deleting single tests. |
 
 ### A practice loop that works
 
@@ -152,14 +152,26 @@ because Monkeytype never stored keystrokes for them.
 | `Ctrl+1` … `Ctrl+9` | Switch pages |
 | `Ctrl+I` | Import |
 | `Ctrl+E` | Export everything as JSON |
+| `Ctrl+,` | Settings |
 | `Ctrl+=` / `Ctrl+-` / `Ctrl+0` | Zoom in / out / reset |
 
-### Settings
+### Settings and themes
 
+Open **Settings** from the bottom of the sidebar (or press `Ctrl+,`, `Cmd+,` on macOS).
+
+<img src="docs/screenshots/settings.png" alt="Settings page with the theme picker" width="900">
+
+- **Themes.** Pick one of the built-in themes: TypeLens, Serika Dark, GitHub Dark and Light, Catppuccin Mocha and
+  Latte, Nord, Dracula, Gruvbox and Tokyo Night.
+- **Sync from Monkeytype.** TypeLens uses the theme you have on monkeytype.com, including custom themes, and follows
+  it when you change it there. The extension reads the colours while you are on Monkeytype.
+- **Custom.** Set your own six colours (background, panels, secondary text, text, accent and error), the same way
+  Monkeytype's custom themes work. You can start from any built-in theme or from your Monkeytype theme.
 - **Start at login.** Launches TypeLens in the background so tests always arrive.
 - **Notifications.** Shows a notification when a new test arrives while the window is in the background.
 - **Updates.** TypeLens checks GitHub Releases shortly after launch and every six hours. Updates download in the
   background and install only when you click **Restart to update**.
+- **Delete all data.** In the Danger zone, behind a typed `DELETE` confirmation.
 
 ## Troubleshooting
 
@@ -239,7 +251,7 @@ The extension makes no requests to the internet. The desktop app contacts GitHub
 sync endpoint listens on `127.0.0.1` only. What is recorded, where it is stored and what (if anything) leaves your
 machine is listed in [PRIVACY.md](PRIVACY.md).
 
-You can export all of your data as JSON or CSV, or delete it, at any time from the **Data** page.
+You can export all of your data as JSON or CSV from the **Data** page, and delete it at any time from **Settings**.
 
 ## Build from source
 

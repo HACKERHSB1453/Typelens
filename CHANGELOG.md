@@ -7,6 +7,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-10-10
+
+### Added
+
+- **Settings page.** A new page at the bottom of the sidebar (`Ctrl+,` / `Cmd+,`) with Appearance, the app
+  options (start at login, notifications, updates) and the Danger zone. Delete-all-data moved here from the Data page.
+- **Themes.** Ten built-in themes: TypeLens (default), Serika Dark, GitHub Dark, GitHub Light, Catppuccin Mocha,
+  Catppuccin Latte, Nord, Dracula, Gruvbox and Tokyo Night. Charts and every page follow the theme straight away.
+- **Sync from Monkeytype.** The extension reads the colours of your Monkeytype theme (built-in or custom) on
+  monkeytype.com and the dashboard can follow it, including later changes.
+- **Custom theme.** Pick your own six colours, like Monkeytype's custom themes, starting from any built-in theme or
+  your Monkeytype theme.
+
 ## [1.0.1] - 2026-10-10
 
 ### Fixed

@@ -170,6 +170,7 @@ function start(): void {
       paired: pairedId
         ? { id: pairedId, version: ext.version, lastSeenAt: ext.lastSeenAt, recorderSeenAt: ext.recorderSeenAt, health: ext.health }
         : null,
+      monkeytypeTheme: ext.theme,
       extensionFolder: fs.existsSync(extensionDir) ? extensionDir : null,
       pending: 0,
     };

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { FingerStat, FingerId } from '@/data/types';
 import { formatMs, formatPercent } from '@/lib/utils';
-import { themeColors } from '@/lib/theme';
+import { liveColors } from '@/lib/theme';
 
 /* ============================================================================
  * HandDiagram — stylized SVG of two hands (Left, Right) with five finger
@@ -11,17 +11,8 @@ import { themeColors } from '@/lib/theme';
 
 export type HandMetric = 'speed' | 'error' | 'hold' | 'rollover';
 
-// Resolved from the CSS theme tokens (src/index.css) so SVG colour mixing stays in sync with the theme.
-const T = themeColors();
-const HEX = {
-  main: T.main,
-  error: T.error,
-  bgDark: T.bgDark,
-  bgElev: T.bgElev,
-  sub: T.sub,
-  sub2: T.sub2,
-  text: T.text,
-} as const;
+// The active theme's colours (updated in place on a theme change) so SVG colour mixing follows the theme.
+const HEX = liveColors;
 interface PillPos {
   x: number;
   y: number;

@@ -7,6 +7,7 @@
  * Everything is wrapped so an error here can never reach the page.
  */
 import type { MonkeytypeResult, Session, SessionConfig } from '@typelens/core/schema';
+import { sanitizeMonkeytypeTheme, type MonkeytypeTheme } from '@typelens/core/desktop';
 import { Recorder, type WordEntry } from '../recorder';
 import { healthCheck, SEL, type Health } from '../selectors';
 
@@ -208,6 +209,46 @@ function readDuration(el: Element | null): number {
   const aria = parseDuration((el.getAttribute('aria-label') ?? '').split('(')[0] ?? '');
   return Number.isFinite(aria) && Number.isFinite(shown) && Math.abs(aria - shown) < 1 ? aria : shown;
 }
+// ------------------------------------------------------------------ theme
+
+/** "#abc", "#aabbcc", "#aabbccdd" (alpha dropped) or "rgb(r, g, b)" -> "#aabbcc"; anything else -> "". */
+export function normalizeColor(value: string): string {
+  const v = value.trim().toLowerCase();
+  let m = v.match(/^#([0-9a-f]{3})$/);
+  if (m) return `#${[...m[1]!].map((c) => c + c).join('')}`;
+  m = v.match(/^#([0-9a-f]{6})(?:[0-9a-f]{2})?$/);
+  if (m) return `#${m[1]}`;
+  m = v.match(/^rgba?\(\s*(\d{1,3})[\s,]+(\d{1,3})[\s,]+(\d{1,3})/);
+  if (m) return `#${m.slice(1, 4).map((n) => Math.min(255, Number(n)).toString(16).padStart(2, '0')).join('')}`;
+  return '';
+}
+
+/**
+ * The theme the user sees on monkeytype.com, from the CSS variables Monkeytype sets on the root element (verified
+ * on the live site 2026-10-10: --bg-color, --main-color, --sub-color, --sub-alt-color, --text-color, --error-color).
+ * Reading computed styles changes nothing on the page. Null when the variables are not there.
+ */
+export function readMonkeytypeTheme(doc: Document, win: Window, configJson: string | null): MonkeytypeTheme | null {
+  const cs = win.getComputedStyle(doc.documentElement);
+  const v = (name: string) => normalizeColor(cs.getPropertyValue(name));
+  let name = '';
+  try {
+    const c = configJson ? (JSON.parse(configJson) as Record<string, unknown>) : null;
+    if (c) name = c.customTheme === true ? 'custom' : String(c.theme ?? '');
+  } catch {
+    /* name is optional */
+  }
+  return sanitizeMonkeytypeTheme({
+    name,
+    bg: v('--bg-color'),
+    main: v('--main-color'),
+    sub: v('--sub-color'),
+    subAlt: v('--sub-alt-color'),
+    text: v('--text-color'),
+    error: v('--error-color'),
+  });
+}
+
 // ------------------------------------------------------------------ wiring
 
 export function attachCapture(env: CaptureEnv): { detach(): void; syncWords(): void } {

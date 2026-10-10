@@ -43,6 +43,7 @@ export interface SourceInfo {
 const offlineBridge: Bridge = {
   request: () => Promise.reject(new Error('Demo data has no extension.')),
   ping: async () => false,
+  monkeytypeTheme: async () => null,
 };
 
 class SwitchingDataSource implements DataSource {

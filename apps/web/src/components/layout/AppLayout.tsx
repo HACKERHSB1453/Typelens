@@ -1,12 +1,21 @@
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { Spinner } from '@/components/ui/Spinner';
 import { Sidebar } from './Sidebar';
 import { FilterBar } from './FilterBar';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { useSourceInfo } from '@/data';
-import { getHost, useHostNavigation } from '@/host';
+import { getHost, useExtensionStatus, useHostNavigation } from '@/host';
 import { UpdateBanner } from '@/components/host/UpdateBanner';
+import { receiveMonkeytypeTheme, useThemeVersion } from '@/lib/themeStore';
+
+/** Passes the Monkeytype theme the extension reports to the theme store (it applies it in "monkeytype" mode). */
+function MonkeytypeThemeSync() {
+  const { status } = useExtensionStatus();
+  const theme = status?.monkeytypeTheme ?? null;
+  useEffect(() => receiveMonkeytypeTheme(theme), [theme]);
+  return null;
+}
 
 /** Shown while there are no real sessions (or when the user chose the demo): says so, and how to fix it. */
 function DemoBanner() {
@@ -45,15 +54,17 @@ function DemoBanner() {
 export function AppLayout() {
   useHostNavigation(); // desktop menu: Ctrl/Cmd+1..9 switch pages, File > Import / Export
   const local = getHost().kind === 'desktop' ? 'this computer' : 'this browser';
+  const themeVersion = useThemeVersion(); // canvas charts keep their colours: remount pages on a theme change
   return (
     <div className="flex min-h-screen">
+      <MonkeytypeThemeSync />
       <Sidebar />
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         <UpdateBanner />
         <FilterBar />
         <DemoBanner />
         <main className="flex-1 p-4 md:p-6">
-          <ErrorBoundary label="page">
+          <ErrorBoundary label="page" key={themeVersion}>
             {/* pages are lazy-loaded chunks: without this boundary, opening a not-yet-loaded page crashes */}
             <Suspense
               fallback={

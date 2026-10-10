@@ -154,7 +154,7 @@ The contract lives in `packages/core/src/desktop.ts`. The endpoint is `http://12
 
 | Path | Body | Reply | Purpose |
 | --- | --- | --- | --- |
-| `POST /v1/hello` | `DesktopHello`: extension version, last recorder time, health | `{ app: "typelens", api, version }` | Shows "connected" in the app. The first caller is paired. |
+| `POST /v1/hello` | `DesktopHello`: extension version, last recorder time, health, the Monkeytype theme colours (optional) | `{ app: "typelens", api, version }` | Shows "connected" in the app. The first caller is paired. |
 | `POST /v1/sessions` | `{ "sessions": [...] }`, at most 20 per request (`DESKTOP_PUSH_BATCH`) | `{ accepted: [ids], rejected: [{ id, error }] }` | Delivers recorded tests. |
 
 Rules enforced by `apps/desktop/src/server.ts`:

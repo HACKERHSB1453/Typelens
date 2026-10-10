@@ -1,6 +1,6 @@
 {
   "name": "@typelens/host-contract",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "type": "module",
   "description": "The typed bridge between the TypeLens UI and the runtime hosting it (desktop app or browser).",
