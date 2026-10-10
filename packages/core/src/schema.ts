@@ -325,6 +325,18 @@ export interface TestChart {
   errors: number[];
 }
 
+/** The result graph's numbers at one exact moment (between its whole seconds), for hovering anywhere on it. */
+export interface SpeedPoint {
+  /** ms since the first keystroke */
+  t: number;
+  /** Monkeytype-style WPM so far, as in TestChart.wpm */
+  wpm: number;
+  /** raw speed over the second before `t` (shorter at the very start), as in TestChart.raw */
+  raw: number;
+  /** wrong characters typed so far */
+  errors: number;
+}
+
 /** Speed of each finished word ("burst" in Monkeytype), in test order. */
 export interface WordBurst {
   wi: number;

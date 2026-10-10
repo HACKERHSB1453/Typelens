@@ -305,8 +305,13 @@ describe('pure DOM readers', () => {
 
   it('healthCheck reports missing selectors', async () => {
     expect(healthCheck(document)).toEqual({ ok: true, missing: [] });
+    document.querySelector('#words')!.remove();
+    expect(healthCheck(document)).toEqual({ ok: false, missing: ['#words'] });
+  });
+
+  it('healthCheck does not require #result (the current Monkeytype only adds it when a test ends)', async () => {
     document.querySelector('#result')!.remove();
-    expect(healthCheck(document)).toEqual({ ok: false, missing: ['#result'] });
+    expect(healthCheck(document)).toEqual({ ok: true, missing: [] });
   });
 });
 
@@ -346,6 +351,104 @@ describe('parseResult on the current Monkeytype result screen (v26.32)', () => {
   it('with a non-wpm speed unit, still takes wpm from an aria-label that says wpm', () => {
     resultScreen({ wpm: ['610.5', '122.1 wpm'], raw: ['650', '130 wpm'], acc: ['95%'], cons: ['70%'], time: '1:05', chars: '1/0/0/0' });
     expect(parseResult(document)?.result).toMatchObject({ wpm: 122.1, rawWpm: 130, acc: 95, testDurationSec: 65 });
+  });
+});
+
+/** The SolidJS result screen (2026-10), structure copied from the live site: one resultStat block per stat. */
+function solidResultHtml(o: { other?: string } = {}): string {
+  const stat = (label: string, value: string, aria?: string) =>
+    `<div data-ui-element="resultStat"><div class="text-sub">${label}</div><div class="text-main" data-ui-element="resultStatValue"${aria !== undefined ? ` aria-label="${aria}"` : ''}>${value}</div></div>`;
+  return `<div id="result" class="content-grid full-width"><div id="resultScreenshotTarget">
+    <div class="grid">
+      <div data-ui-element="resultStat"><div class="flex text-sub"><div>wpm</div></div><div class="text-main" aria-label="162.83 wpm" data-ui-element="resultStatValue">163</div></div>
+      ${stat('acc', '100%', '100%&#10;50 correct&#10;0 incorrect')}
+      <div class="group/chart"><button type="button"><div>raw</div></button><button type="button"><div>errors</div></button></div>
+    </div>
+    <div class="grid">
+      ${stat('test type', 'words 50 english<br>')}
+      ${stat('other', o.other ?? '')}
+      ${stat('raw', '177', '176.99 wpm')}
+      ${stat('characters', '46/0/0/1', 'correct&#10;incorrect&#10;extra&#10;missed')}
+      ${stat('consistency', '73%', '72.6% (60% key)')}
+      <div data-ui-element="resultStat"><div class="text-sub">time</div><div class="text-main" aria-label="3.39s (2s afk 59%)" data-ui-element="resultStatValue"><div>3s</div><div data-ui-element="resultStatSubValue">59% afk</div><div data-ui-element="resultStatSubValue">00:00:01 session</div></div></div>
+    </div>
+  </div></div>`;
+}
+
+describe('the SolidJS result screen (2026-10)', () => {
+  it('parseResult reads every stat by its label', () => {
+    document.body.innerHTML = solidResultHtml();
+    expect(parseResult(document)).toEqual({
+      result: { wpm: 162.83, rawWpm: 176.99, acc: 100, consistency: 72.6, testDurationSec: 3.39, charStats: [46, 0, 0, 1] },
+      failed: false,
+    });
+  });
+
+  it('parseResult flags a failed test from the "other" stat', () => {
+    document.body.innerHTML = solidResultHtml({ other: 'failed (slow timer)' });
+    expect(parseResult(document)?.failed).toBe(true);
+  });
+
+  it('saves the test when #result is ADDED to the page, not when the next test starts', async () => {
+    const ta = document.querySelector('#wordsInput') as HTMLTextAreaElement;
+    document.querySelector('#result')!.remove(); // the SolidJS page has no #result while typing
+    ta.value = ' ';
+    typeWordAndCommit(ta, 'long', 0);
+    typeWordAndCommit(ta, 'increase', 1);
+    expect(ctl.sent).toHaveLength(0);
+    document.body.insertAdjacentHTML('beforeend', solidResultHtml());
+    await vi.advanceTimersByTimeAsync(10);
+    expect(ctl.sent).toHaveLength(1);
+    expect(ctl.sent[0]!.completed).toBe(true);
+    expect(ctl.sent[0]!.flags ?? []).not.toContain('restart');
+    expect(ctl.sent[0]!.result).toMatchObject({ wpm: 162.83, acc: 100, testDurationSec: 3.39 });
+  });
+
+  it('waits for numbers that render after the screen itself', async () => {
+    const ta = document.querySelector('#wordsInput') as HTMLTextAreaElement;
+    document.querySelector('#result')!.remove();
+    ta.value = ' ';
+    typeWordAndCommit(ta, 'long', 0);
+    typeWordAndCommit(ta, 'increase', 1);
+    document.body.insertAdjacentHTML('beforeend', '<div id="result" class="content-grid"></div>');
+    await vi.advanceTimersByTimeAsync(150);
+    expect(ctl.sent).toHaveLength(0);
+    document.querySelector('#result')!.outerHTML = solidResultHtml();
+    await vi.advanceTimersByTimeAsync(150);
+    expect(ctl.sent).toHaveLength(1);
+    expect(ctl.sent[0]!.completed).toBe(true);
+  });
+
+  it('a result screen that never gets numbers still keeps the data, marked incomplete', async () => {
+    const ta = document.querySelector('#wordsInput') as HTMLTextAreaElement;
+    document.querySelector('#result')!.remove();
+    ta.value = ' ';
+    typeWordAndCommit(ta, 'long', 0);
+    typeWordAndCommit(ta, 'increase', 1);
+    document.body.insertAdjacentHTML('beforeend', '<div id="result"></div>');
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(ctl.sent).toHaveLength(1);
+    expect(ctl.sent[0]!.completed).toBe(false);
+  });
+
+  it('records the next test too after the result screen is removed again', async () => {
+    const ta = document.querySelector('#wordsInput') as HTMLTextAreaElement;
+    document.querySelector('#result')!.remove();
+    ta.value = ' ';
+    typeWordAndCommit(ta, 'long', 0);
+    typeWordAndCommit(ta, 'increase', 1);
+    document.body.insertAdjacentHTML('beforeend', solidResultHtml());
+    await vi.advanceTimersByTimeAsync(10);
+    document.querySelector('#result')!.remove();
+    await vi.advanceTimersByTimeAsync(10);
+    advanceWord(0);
+    ta.value = ' ';
+    typeWordAndCommit(ta, 'long', 0);
+    typeWordAndCommit(ta, 'increase', 1);
+    document.body.insertAdjacentHTML('beforeend', solidResultHtml());
+    await vi.advanceTimersByTimeAsync(10);
+    expect(ctl.sent).toHaveLength(2);
+    expect(ctl.sent.every((x) => x.completed)).toBe(true);
   });
 });
 

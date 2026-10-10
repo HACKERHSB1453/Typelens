@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildBursts, buildReplay, buildTestChart, typedStateAt } from '../src/replay';
+import { buildBursts, buildReplay, buildTestChart, speedAt, typedStateAt } from '../src/replay';
 import { makeSession } from '../src/fixtures';
 import type { InputEvent, Session } from '../src/schema';
 
@@ -132,3 +132,37 @@ describe('buildReplay', () => {
     expect(buildReplay(s)).toMatchObject({ durationMs: 0, wpmPerSecond: [], pauses: [], bursts: [], chart: { seconds: [] } });
   });
 });
+
+describe('speedAt (the result graph at any moment)', () => {
+  it('matches the graph at whole seconds', () => {
+    const s = makeSession({ text: Array(10).fill('cat').join(' ') });
+    const c = buildTestChart(s, 6000);
+    for (const sec of [1, 2, 3, 4, 5]) {
+      const p = speedAt(s.words, s.inputEvents, sec * 1000 - 1); // the graph's second ends just before the next key
+      expect(p.wpm).toBeCloseTo(c.wpm[sec - 1]!, 0);
+      expect(p.raw).toBeCloseTo(c.raw[sec - 1]!, 0);
+    }
+  });
+
+  it('gives values between the seconds', () => {
+    const s = makeSession({ text: Array(10).fill('cat').join(' ') }); // a key every 150 ms
+    // at 1.5 s: keys at 0..1500 = 11 characters, all correct; "cat␣cat␣cat" = 11 correct chars
+    const p = speedAt(s.words, s.inputEvents, 1500);
+    expect(p.wpm).toBe(round2((11 * 60) / 1.5 / 5));
+    // raw over 0.5..1.5 s: keys at 600,750,...,1500 = 7
+    expect(p.raw).toBe(84);
+    expect(p.errors).toBe(0);
+  });
+
+  it('uses the time so far as the window at the very start and counts errors so far', () => {
+    const ev = [ins(0, 0, 0, 'x', 'a'), ins(200, 0, 1, 'b', 'b')];
+    const p = speedAt(['ab'], ev, 400);
+    expect(p.raw).toBe(60); // 2 characters in 0.4 s
+    expect(p.errors).toBe(1);
+    expect(speedAt(['ab'], ev, 0)).toMatchObject({ wpm: 0, raw: 0 });
+  });
+});
+
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
+}

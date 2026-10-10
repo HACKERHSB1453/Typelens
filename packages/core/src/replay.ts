@@ -2,7 +2,7 @@
  * Replaying a recorded test: the text state at any moment, Monkeytype's per-second result graph (which
  * Monkeytype itself never stores), and per-word burst speeds.
  */
-import type { InputEvent, ReplayData, Session, TestChart, TypedState, WordBurst } from './schema';
+import type { InputEvent, ReplayData, Session, SpeedPoint, TestChart, TypedState, WordBurst } from './schema';
 import { round } from './stats-util';
 
 const PAUSE_MS = 2000;
@@ -118,6 +118,30 @@ export function buildTestChart(s: Session, durationMs: number): TestChart {
     prevEnd = end;
   }
   return chart;
+}
+
+/**
+ * The graph's numbers at any moment `t` (ms since the first keystroke), computed the same way as buildTestChart
+ * but not limited to whole seconds. Raw speed uses the second before `t` as its window.
+ */
+export function speedAt(words: readonly string[], inputEvents: readonly InputEvent[], t: number): SpeedPoint {
+  const tape = new Tape();
+  const window = Math.min(1000, t);
+  let typedInWindow = 0;
+  let errors = 0;
+  for (const e of inputEvents) {
+    if (e.t > t) break;
+    tape.apply(e);
+    if (e.op === 'ins' && e.correct === false) errors++;
+    if ((e.op === 'ins' || e.op === 'commit') && e.t >= t - window) typedInWindow++;
+  }
+  const secs = t / 1000;
+  return {
+    t,
+    wpm: secs > 0 ? round((tape.correctChars(words) * 60) / secs / 5, 2) : 0,
+    raw: window > 0 ? round((typedInWindow * 60) / (window / 1000) / 5, 2) : 0,
+    errors,
+  };
 }
 
 export function buildBursts(s: Session): WordBurst[] {

@@ -128,14 +128,13 @@ export function parseDuration(text: string): number {
  * with "always show decimal places" on: the shown text is the reliable value; aria-labels vary by setting.
  */
 export function parseResult(doc: Document): { result: MonkeytypeResult; failed: boolean } | null {
-  const q = (sel: string) => doc.querySelector(sel);
-  const wpm = readSpeed(q(SEL.resultWpm));
-  const acc = readPercent(q(SEL.resultAcc));
+  const f = resultFields(doc);
+  const wpm = readSpeed(f.wpm);
+  const acc = readPercent(f.acc);
   if (!Number.isFinite(wpm) || !Number.isFinite(acc)) return null;
-  const raw = readSpeed(q(SEL.resultRaw));
-  const cons = readPercent(q(SEL.resultConsistency));
-  const timeEl = q(SEL.resultTimeText) ?? q(SEL.resultTime);
-  const dur = parseDuration(timeEl?.textContent ?? '');
+  const raw = readSpeed(f.raw);
+  const cons = readPercent(f.consistency);
+  const dur = readDuration(f.time);
   const result: MonkeytypeResult = {
     wpm,
     rawWpm: Number.isFinite(raw) ? raw : wpm,
@@ -143,12 +142,71 @@ export function parseResult(doc: Document): { result: MonkeytypeResult; failed: 
     consistency: Number.isFinite(cons) ? cons : 0,
     testDurationSec: Number.isFinite(dur) ? dur : 0,
   };
-  const chars = (q(SEL.resultChars)?.textContent ?? '').split('/').map((x) => parseInt(x, 10));
+  const chars = (f.chars?.textContent ?? '').split('/').map((x) => parseInt(x, 10));
   if (chars.length === 4 && chars.every((n) => Number.isFinite(n))) {
     result.charStats = chars as [number, number, number, number];
   }
-  const info = (q(SEL.resultInfo)?.textContent ?? '').toLowerCase();
+  const info = (f.info?.textContent ?? '').toLowerCase();
   return { result, failed: info.includes('failed') || info.includes('invalid') };
+}
+
+interface ResultFields {
+  wpm: Element | null;
+  raw: Element | null;
+  acc: Element | null;
+  consistency: Element | null;
+  chars: Element | null;
+  time: Element | null;
+  info: Element | null;
+}
+
+/**
+ * Finds the value element of each result stat. The SolidJS result screen (2026-10) labels each stat with its
+ * visible text ("wpm", "acc", "raw", "characters", "consistency", "time", "other"); the legacy one used
+ * `.group.<name> .bottom`.
+ */
+function resultFields(doc: Document): ResultFields {
+  const stats = Array.from(doc.querySelectorAll(SEL.resultStat));
+  if (stats.length) {
+    const byLabel = new Map<string, Element>();
+    for (const stat of stats) {
+      const value = stat.querySelector(SEL.resultStatValue);
+      const label = (stat.firstElementChild?.textContent ?? '').trim().toLowerCase();
+      if (value && label && !byLabel.has(label)) byLabel.set(label, value);
+    }
+    const get = (label: string) => byLabel.get(label) ?? null;
+    return {
+      wpm: get('wpm'),
+      raw: get('raw'),
+      acc: get('acc'),
+      consistency: get('consistency'),
+      chars: get('characters'),
+      time: get('time'),
+      info: get('other'),
+    };
+  }
+  const q = (sel: string) => doc.querySelector(sel);
+  return {
+    wpm: q(SEL.resultWpm),
+    raw: q(SEL.resultRaw),
+    acc: q(SEL.resultAcc),
+    consistency: q(SEL.resultConsistency),
+    chars: q(SEL.resultChars),
+    time: q(SEL.resultTimeText) ?? q(SEL.resultTime),
+    info: q(SEL.resultInfo),
+  };
+}
+
+/**
+ * Test duration. What is shown is rounded ("3s") and, on the SolidJS screen, followed by afk/session lines in
+ * sibling elements, so only the first line is read. The aria-label ("3.39s (2s afk 59%)") adds precision and is
+ * used when it agrees with what is shown.
+ */
+function readDuration(el: Element | null): number {
+  if (!el) return Number.NaN;
+  const shown = parseDuration(el.firstElementChild?.textContent ?? el.textContent ?? '');
+  const aria = parseDuration((el.getAttribute('aria-label') ?? '').split('(')[0] ?? '');
+  return Number.isFinite(aria) && Number.isFinite(shown) && Math.abs(aria - shown) < 1 ? aria : shown;
 }
 // ------------------------------------------------------------------ wiring
 
@@ -263,19 +321,31 @@ export function attachCapture(env: CaptureEnv): { detach(): void; syncWords(): v
   win.addEventListener('blur', onBlur, { passive: true });
   cleanups.push(() => win.removeEventListener('blur', onBlur));
 
-  // ---- result screen: `hidden` class removed => test finished
+  // ---- result screen shown => test finished. Legacy Monkeytype removes the `hidden` class from a #result that
+  // is always in the page; the SolidJS version (2026-10) adds #result to the page only when the test ends.
+  let resultRetry: ReturnType<typeof setTimeout> | undefined;
+  const RESULT_RETRY_MS = 100;
+  const RESULT_RETRIES = 20;
+
+  /** Reads the numbers; they can render a moment after the screen itself, so retry briefly before giving up. */
+  const readResult = safe((attempt: number) => {
+    if (!recorder.snapshot().active) return;
+    const parsed = parseResult(doc);
+    if (parsed) emit(recorder.onResult(parsed.result, !parsed.failed));
+    else if (attempt < RESULT_RETRIES) resultRetry = setTimeout(() => readResult(attempt + 1), RESULT_RETRY_MS);
+    else emit(recorder.onRestart()); // result screen without numbers: keep the data, mark incomplete
+  });
+
   const checkResult = safe(() => {
     const el = doc.querySelector(SEL.result);
-    if (!el) return;
-    const visible = !el.classList.contains('hidden');
+    const visible = !!el && !el.classList.contains('hidden');
     if (visible && !resultShown) {
       resultShown = true;
       if (env.isPaused() || !recorder.snapshot().active) return;
-      const parsed = parseResult(doc);
-      if (parsed) emit(recorder.onResult(parsed.result, !parsed.failed));
-      else emit(recorder.onRestart()); // result screen without numbers: keep the data, mark incomplete
+      readResult(0);
     } else if (!visible) {
       resultShown = false;
+      clearTimeout(resultRetry);
     }
   });
 
@@ -312,11 +382,18 @@ export function attachCapture(env: CaptureEnv): { detach(): void; syncWords(): v
     env.reportHealth?.(healthCheck(doc));
   });
 
+  // Catches #result being added to or removed from the page (SolidJS result screen). The check is a single
+  // id lookup, so running it on every DOM batch is cheap.
+  const pageObs = new win.MutationObserver(checkResult);
+  pageObs.observe(doc.body, { childList: true, subtree: true });
+
   attachObservers();
   const timer = setInterval(attachObservers, 2000);
   cleanups.push(() => {
     clearInterval(timer);
     clearTimeout(debounce);
+    clearTimeout(resultRetry);
+    pageObs.disconnect();
     resultObs?.disconnect();
     wordsObs?.disconnect();
   });

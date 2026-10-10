@@ -252,7 +252,7 @@ function ReplayPlayer({ data }: { data: ReplayData }) {
       <Card>
         <CardHeader title="Result graph" subtitle="wpm so far, raw speed per second and errors — rebuilt from your keystrokes" />
         {data.chart.seconds.length > 1 ? (
-          <TestResultChart chart={data.chart} />
+          <TestResultChart chart={data.chart} words={data.words} inputEvents={data.inputEvents} />
         ) : (
           <p className="py-4 text-center text-xs text-[var(--sub)]">This test is too short to draw a graph.</p>
         )}
