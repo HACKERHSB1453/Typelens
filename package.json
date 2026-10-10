@@ -18,7 +18,8 @@
     "start:desktop": "npm run build -w @typelens/extension && npm run start -w @typelens/desktop",
     "dev:desktop": "npm run dev -w @typelens/desktop",
     "dist:win": "npm run build -w @typelens/extension && npm run dist:win -w @typelens/desktop",
-    "dist:linux": "npm run build -w @typelens/extension && npm run dist:linux -w @typelens/desktop"
+    "dist:linux": "npm run build -w @typelens/extension && npm run dist:linux -w @typelens/desktop",
+    "dist:mac": "npm run build -w @typelens/extension && npm run dist:mac -w @typelens/desktop"
   },
   "devDependencies": {
     "@types/chrome": "^0.3.0",

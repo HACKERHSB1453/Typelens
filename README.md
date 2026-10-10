@@ -12,7 +12,7 @@ and generate practice text that targets your weak spots. Everything stays on you
 [![Latest release](https://img.shields.io/github/v/release/HACKERHSB1453/Typelens?label=release&color=white)](https://github.com/HACKERHSB1453/Typelens/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/HACKERHSB1453/Typelens/total?color=white)](https://github.com/HACKERHSB1453/Typelens/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-white)](LICENSE)
-![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux-white)
+![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-white)
 
 [**Download**](https://github.com/HACKERHSB1453/Typelens/releases/latest) ·
 [Getting started](#getting-started) ·
@@ -74,11 +74,19 @@ Download the package for your system from the
 | System | File | Install |
 | --- | --- | --- |
 | **Windows 10 / 11** | `TypeLens-Setup-<version>-x64.exe` | Run the installer. A portable `TypeLens-<version>-win-x64.zip` is also available (it does not auto-update). |
+| **macOS (Apple Silicon)** | `TypeLens-<version>-mac-arm64.dmg` | Open the `.dmg` and drag TypeLens to Applications. See the first-launch note below. |
+| **macOS (Intel)** | `TypeLens-<version>-mac-x64.dmg` | Same as above. |
 | **Ubuntu 22.04+ / Debian 12+** | `TypeLens-<version>-amd64.deb` | `sudo apt install ./TypeLens-<version>-amd64.deb` |
 | **Fedora / RHEL family** | `TypeLens-<version>-x86_64.rpm` | `sudo dnf install ./TypeLens-<version>-x86_64.rpm` |
 
 Install with `apt` or `dnf` so the required libraries are pulled in automatically. On Fedora, if the install fails
 with a `/usr/lib/.build-id/...` conflict, see [Troubleshooting](#troubleshooting).
+
+> **macOS first launch:** the app is not notarized by Apple yet, so macOS says it *"cannot be opened because the
+> developer cannot be verified"*. Right-click (or Control-click) TypeLens in Applications, choose **Open**, then
+> **Open** again. You only need to do this once. On macOS 15+, if there is no Open button, go to
+> **System Settings → Privacy & Security** and click **Open Anyway**. Automatic updates are not available on macOS yet:
+> download new versions from the releases page.
 
 > **Windows SmartScreen:** the installer is not code-signed yet, so Windows may show *"Windows protected your PC"*.
 > Click **More info → Run anyway**.
@@ -179,6 +187,18 @@ sudo rpm -i --excludepath=/usr/lib/.build-id TypeLens-<version>-x86_64.rpm
 </details>
 
 <details>
+<summary><b>macOS says TypeLens "is damaged" or "cannot be opened"</b></summary>
+
+The app isn't notarized by Apple yet. Right-click TypeLens in Applications and choose **Open**, or use **System
+Settings → Privacy & Security → Open Anyway**. If macOS still says it is damaged, clear the download quarantine flag:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/TypeLens.app
+```
+
+</details>
+
+<details>
 <summary><b>Windows says "Windows protected your PC"</b></summary>
 
 The installer isn't code-signed yet. Click **More info → Run anyway**.
@@ -233,6 +253,7 @@ npm run start:desktop     # run the desktop app from source
 npm run dev:desktop       # desktop app with hot reload
 npm run dist:linux        # .deb and .rpm   -> apps/desktop/release
 npm run dist:win          # .exe and .zip   -> apps/desktop/release
+npm run dist:mac          # .dmg (on a Mac) -> apps/desktop/release
 ```
 
 Linux packages can also be built anywhere Docker runs, using the official Electron builder image:
@@ -241,7 +262,6 @@ Linux packages can also be built anywhere Docker runs, using the official Electr
 docker run --rm -ti -v "${PWD}:/project" -w /project electronuserland/builder /bin/bash -c "npm ci && npm run dist:linux"
 ```
 
-macOS builds are not shipped. `npm run start:desktop` may work on macOS but is untested.
 
 ### Project structure
 

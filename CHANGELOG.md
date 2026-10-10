@@ -19,6 +19,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- **macOS.** Disk images for Apple Silicon (`-mac-arm64.dmg`) and Intel (`-mac-x64.dmg`). They are not notarized yet,
+  so the first launch needs right-click > Open, and automatic updates are not available on macOS.
 - **Hover anywhere on the result graph.** The graph now has a time axis and shows wpm so far, raw speed and errors
   so far at the exact moment under the pointer, not only at whole seconds.
 

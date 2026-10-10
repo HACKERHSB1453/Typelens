@@ -47,6 +47,21 @@ nsis:
   deleteAppDataOnUninstall: false
   artifactName: "${productName}-Setup-${version}-${arch}.${ext}"
 
+mac:
+  # Apple Silicon and Intel builds. No Apple Developer certificate yet: "-" applies an ad-hoc signature, which
+  # Apple Silicon requires to run at all ("app is damaged" without it). Gatekeeper still warns on first launch
+  # (right-click > Open). Hardened runtime is off because ad-hoc signing cannot use it without extra entitlements.
+  # Auto-update is disabled on macOS in updater.ts, since Squirrel.Mac only accepts properly signed apps.
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+  category: public.app-category.utilities
+  identity: "-"
+  hardenedRuntime: false
+  artifactName: "${productName}-${version}-mac-${arch}.${ext}"
+dmg:
+  artifactName: "${productName}-${version}-mac-${arch}.${ext}"
+
 linux:
   # deb + rpm only. No AppImage: Ubuntu 23.10+ blocks its Chromium sandbox (AppArmor user namespaces) and its
   # temporary mount path breaks the typelens:// handler and the bundled extension folder. The deb/rpm keep
