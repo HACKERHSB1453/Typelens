@@ -11,7 +11,7 @@ and generate practice text that targets your weak spots. Everything stays on you
 
 [![Latest release](https://img.shields.io/github/v/release/HACKERHSB1453/Typelens?label=release&color=white)](https://github.com/HACKERHSB1453/Typelens/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/HACKERHSB1453/Typelens/total?color=white)](https://github.com/HACKERHSB1453/Typelens/releases)
-[![License: MIT](https://img.shields.io/badge/license-MIT-white)](LICENSE)
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-white)](LICENSE)
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-white)
 
 [**Download**](https://github.com/HACKERHSB1453/Typelens/releases/latest) ·
@@ -319,7 +319,16 @@ Report security issues privately as described in [SECURITY.md](SECURITY.md). Thi
 
 ## License and acknowledgements
 
-TypeLens is released under the [MIT License](LICENSE).
+Copyright (C) 2026 TypeLens contributors.
+
+TypeLens is free software: you can redistribute it and/or modify it under the terms of the
+[GNU General Public License](LICENSE) as published by the Free Software Foundation, either version 3 of the License,
+or (at your option) any later version. It is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+In short: you may use, study, share and change TypeLens. If you distribute it, or a modified version, you must do so
+under the same license and make the complete source code available. Versions up to and including 1.0.2 were
+released under the MIT License.
 
 - TypeLens is **not affiliated with, endorsed by or sponsored by Monkeytype or TypeQuicker**. Monkeytype and
   TypeQuicker are trademarks of their respective owners. TypeLens is inspired by TypeQuicker's analytics.

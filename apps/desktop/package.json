@@ -5,7 +5,7 @@
   "version": "1.0.2",
   "private": true,
   "description": "Local-first typing analytics for Monkeytype: per-key, n-gram, finger and word stats, replays and practice text.",
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "author": { "name": "TypeLens contributors", "email": "noreply@typelens.invalid" },
   "homepage": "https://github.com/HACKERHSB1453/Typelens",
   "repository": {

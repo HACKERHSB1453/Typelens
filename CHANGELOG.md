@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- **License.** TypeLens is now licensed under the GNU General Public License, version 3 or later (GPL-3.0-or-later).
+  Versions up to and including 1.0.2 were released under the MIT License.
+
 ## [1.0.2] - 2026-10-10
 
 ### Added

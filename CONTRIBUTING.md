@@ -113,6 +113,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full picture.
 
 ## Licensing of contributions
 
-TypeLens is released under the MIT License. By submitting a contribution you agree that it may be distributed under
-that license. Do not submit code copied from Monkeytype or from any other project unless its license is compatible
-with MIT and the source is credited. TypeLens reimplements formulas in its own code; do not copy Monkeytype's source.
+TypeLens is released under the GNU General Public License, version 3 or (at your option) any later version
+(GPL-3.0-or-later). By submitting a contribution you agree that it may be distributed under that license. Do not submit
+code copied from Monkeytype or from any other project unless its license is compatible with GPL-3.0-or-later and the
+source is credited. TypeLens reimplements formulas in its own code; do not copy Monkeytype's source.
