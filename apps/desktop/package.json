@@ -32,8 +32,8 @@
     "electron-updater": "^6.6.2"
   },
   "devDependencies": {
-    "electron": "44.7.0",
+    "electron": "44.9.1",
     "electron-builder": "26.15.3",
-    "esbuild": "^0.21.5"
+    "esbuild": "^0.28.2"
   }
 }
