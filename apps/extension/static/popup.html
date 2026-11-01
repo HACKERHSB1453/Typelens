@@ -15,6 +15,11 @@
     </label>
   </header>
 
+  <div id="perm" class="warn" hidden>
+    TypeLens needs access to monkeytype.com to record tests, and to 127.0.0.1 to reach the desktop app.
+    <button id="grant" class="primary grant">Allow access</button>
+  </div>
+
   <div id="warn" class="warn" hidden></div>
 
   <section class="grid">
@@ -25,16 +30,17 @@
   <section class="desk">
     <span id="deskDot" class="dot"></span>
     <span id="deskText">Checking the TypeLens app…</span>
+    <button id="openApp" class="small" hidden>Open app</button>
     <button id="sync" class="small">Sync now</button>
   </section>
 
   <p id="last" class="last">No tests recorded yet. Open monkeytype.com and finish a test.</p>
 
   <div class="buttons">
-    <button id="open" class="primary">Open TypeLens app</button>
+    <button id="open" class="primary">Open dashboard</button>
     <button id="export">Export JSON</button>
   </div>
-  <p class="foot">Everything stays on this computer. TypeLens only listens to the typing box on monkeytype.com.</p>
+  <p class="foot">Everything stays on this computer. TypeLens only listens to the typing box on monkeytype.com. The desktop app is optional: the dashboard works in the browser too.</p>
   <script src="popup.js"></script>
 </body>
 </html>

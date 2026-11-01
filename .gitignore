@@ -15,3 +15,5 @@ coverage/
 # secrets: Chrome extension signing key and packed extension must never be committed
 *.pem
 *.crx
+apps/extension/dist-firefox/
+apps/extension/.build-tmp/

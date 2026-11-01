@@ -20,14 +20,16 @@ function MonkeytypeThemeSync() {
 /** Shown while there are no real sessions (or when the user chose the demo): says so, and how to fix it. */
 function DemoBanner() {
   const { effective, pref, realCount, setPref } = useSourceInfo();
-  const desktop = getHost().capabilities.extensionPush;
+  const { extensionPush: desktop, builtInRecorder: builtIn } = getHost().capabilities;
   if (effective !== 'demo') return null;
   return (
     <div role="status" className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--sub-2)] bg-[var(--bg-elev)] px-4 py-2 text-xs md:px-6">
       <span>
         <strong className="text-[var(--main)]">Demo data.</strong>{' '}
         {realCount === 0 || realCount === null
-          ? desktop
+          ? builtIn
+            ? 'These charts are made up. Finish a test on monkeytype.com and it appears here automatically.'
+            : desktop
             ? 'These charts are made up. Install the browser extension (Data > Browser extension), then finish a test on monkeytype.com. It appears here automatically.'
             : 'These charts are made up. Install the TypeLens extension, finish a test on monkeytype.com, then open Data and press Sync.'
           : `You have ${realCount} real test${realCount === 1 ? '' : 's'}, but demo data is switched on.`}

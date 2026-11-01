@@ -39,7 +39,11 @@ export type Msg =
   | { type: 'popup:state' }
   | { type: 'popup:sync' }
   | { type: 'export' }
-  | { type: 'clear'; confirm: string };
+  | { type: 'clear'; confirm: string }
+  | { type: 'dash:changed'; deliver?: boolean };
+
+/** Broadcast by the background worker to extension pages (the dashboard) after it stored a new test. */
+export const SESSIONS_CHANGED = 'typelens:sessions-changed';
 
 /** Max sessions returned by one sync:get call (keeps message sizes sane). */
 export const SYNC_BATCH = 20;

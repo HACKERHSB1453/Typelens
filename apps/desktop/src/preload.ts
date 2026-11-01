@@ -17,7 +17,7 @@ function subscribe<A extends unknown[]>(channel: string, cb: (...args: A) => voi
 
 const host: TypeLensHost = {
   kind: 'desktop',
-  capabilities: { nativeFiles: true, notifications: true, autoUpdate: true, extensionPush: true, openFolders: true, startAtLogin: true },
+  capabilities: { nativeFiles: true, notifications: true, autoUpdate: true, extensionPush: true, openFolders: true, startAtLogin: true, builtInRecorder: false },
   app: { info: () => call(C.appInfo) },
   sessions: {
     list: () => call(C.sessionsList),

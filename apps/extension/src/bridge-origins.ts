@@ -5,9 +5,6 @@
  */
 export const BRIDGE_ORIGINS: readonly string[] = ['http://localhost:5173', 'http://127.0.0.1:5173'];
 
-/** Opened by the popup's "Open dashboard" button. */
-export const DASHBOARD_URL = 'http://localhost:5173';
-
 export const MONKEYTYPE_ORIGIN = 'https://monkeytype.com';
 
 export function isBridgeOrigin(url: string | undefined): boolean {

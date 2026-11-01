@@ -23,3 +23,4 @@ button.primary { background:var(--main); color:#000000; border-color:var(--main)
 .dot.ok { background:var(--main); }
 .dot.err { background:var(--error); }
 button.small { flex:none; padding:3px 8px; font-size:11px; }
+.grant { display:block; width:100%; margin-top:8px; }
