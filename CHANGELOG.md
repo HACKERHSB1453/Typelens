@@ -7,10 +7,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- **TypeLens without the desktop app.** The extension now contains the whole dashboard. Click **Open dashboard** in
+  the toolbar popup: every page works, new tests appear as soon as you finish them, and import and export work as in
+  the app. The desktop app is optional; when it runs, it still receives every test.
+- **Firefox.** A Firefox build of the extension (Firefox 128+), shipped as `TypeLens-extension-firefox-<version>.zip`,
+  in the app's `extension-firefox` folder, and as a signed `.xpi` when the release is signed by Mozilla. The popup
+  asks for site access when Firefox installed the extension without it.
+- **Arch Linux.** Releases include `TypeLens-<version>-x64.pacman` (`sudo pacman -U`), and `packaging/aur` has the
+  recipe for an AUR `typelens-bin` package.
+
 ### Changed
 
 - **License.** TypeLens is now licensed under the GNU General Public License, version 3 or later (GPL-3.0-or-later).
   Versions up to and including 1.0.2 were released under the MIT License.
+- The popup's main button opens the built-in dashboard; **Open app** appears next to the desktop status when the app
+  is running. The old "Open web dashboard (dev)" button is gone.
+- Dependencies: React 19, Vite 8, Vitest 5, chart.js 4.6, lucide-react 1.x, esbuild 0.28, electron-builder 26.18 and
+  others. Dependabot now groups packages that must be updated together.
+
+### Fixed
+
+- Extension pages in Firefox (`moz-extension://`) were refused by the background worker, which only accepted
+  `chrome-extension://` pages.
 
 ## [1.0.2] - 2026-10-10
 

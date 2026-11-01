@@ -19,6 +19,10 @@ match.
 - [ ] Set the date of the 1.0.0 entry in `CHANGELOG.md` (replace `RELEASE_DATE_PLACEHOLDER`) when the release is cut.
 - [ ] If `publish.owner` is still `OWNER_PLACEHOLDER` (a fork that has not set it), the desktop build prints a warning and
   updates stay disabled.
+- [ ] Optional, for a Firefox add-on that installs permanently: create API keys at addons.mozilla.org (Developer Hub →
+  Manage API Keys) and add them as the repository secrets `AMO_JWT_ISSUER` and `AMO_JWT_SECRET`. The release workflow
+  then has Mozilla sign an unlisted `.xpi`. Without them only the unsigned Firefox zip is published.
+- [ ] Optional: publish the AUR package `typelens-bin` after each release (see `packaging/aur/README.md`).
 - [ ] In the repository settings, enable **Security -> Private vulnerability reporting** (Security Advisories), because
   `SECURITY.md` and the issue template point to it.
 - [ ] Make sure `apps/extension/dist.pem` (the Chrome signing key) and `apps/extension/dist.crx` are **not** in the

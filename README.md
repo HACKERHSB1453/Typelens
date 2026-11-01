@@ -12,7 +12,8 @@ and generate practice text that targets your weak spots. Everything stays on you
 [![Latest release](https://img.shields.io/github/v/release/HACKERHSB1453/Typelens?label=release&color=white)](https://github.com/HACKERHSB1453/Typelens/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/HACKERHSB1453/Typelens/total?color=white)](https://github.com/HACKERHSB1453/Typelens/releases)
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-white)](LICENSE)
-![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-white)
+![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-white)
+![Browsers](https://img.shields.io/badge/browsers-Chrome%20%7C%20Edge%20%7C%20Brave%20%7C%20Firefox-white)
 
 [**Download**](https://github.com/HACKERHSB1453/Typelens/releases/latest) ·
 [Getting started](#getting-started) ·
@@ -67,6 +68,9 @@ can paste straight into Monkeytype.
 
 Setup takes about two minutes: install the desktop app, load the browser extension, and take a test.
 
+> **Don't want to install an app?** The extension has the whole dashboard built in. Skip step 1, load the extension
+> (step 2), then see [Using TypeLens without the desktop app](#using-typelens-without-the-desktop-app).
+
 ### 1. Install the desktop app
 
 Download the package for your system from the
@@ -79,8 +83,10 @@ Download the package for your system from the
 | **macOS (Intel)** | `TypeLens-<version>-mac-x64.dmg` | Same as above. |
 | **Ubuntu 22.04+ / Debian 12+** | `TypeLens-<version>-amd64.deb` | `sudo apt install ./TypeLens-<version>-amd64.deb` |
 | **Fedora / RHEL family** | `TypeLens-<version>-x86_64.rpm` | `sudo dnf install ./TypeLens-<version>-x86_64.rpm` |
+| **Arch Linux / Manjaro / EndeavourOS** | `TypeLens-<version>-x64.pacman` | `sudo pacman -U ./TypeLens-<version>-x64.pacman` |
 
-Install with `apt` or `dnf` so the required libraries are pulled in automatically.
+Install with `apt`, `dnf` or `pacman` so the required libraries are pulled in automatically. Arch users can also use
+the AUR recipe in [`packaging/aur`](packaging/aur/README.md) (`typelens-bin`).
 
 > **macOS first launch:** the app is not notarized by Apple yet, so macOS says it *"cannot be opened because the
 > developer cannot be verified"*. Right-click (or Control-click) TypeLens in Applications, choose **Open**, then
@@ -93,7 +99,8 @@ Install with `apt` or `dnf` so the required libraries are pulled in automaticall
 
 ### 2. Load the browser extension
 
-The extension is what records your tests. It works in **Chrome, Edge and Brave** (version 110 or newer).
+The extension is what records your tests. It works in **Chrome, Edge, Brave, Opera and Vivaldi** (version 110 or
+newer) and in **Firefox** (version 128 or newer, see [Firefox](#firefox) below).
 
 1. Open `chrome://extensions` (Edge: `edge://extensions`, Brave: `brave://extensions`).
 2. Turn on **Developer mode** (top-right toggle).
@@ -112,6 +119,19 @@ extension stays up to date with the app (see [Updating](#updating)). You can als
 `TypeLens-extension-<version>.zip` from the release and extract it somewhere permanent, but then you have to update it
 by hand. Either way, don't move or delete the folder: the browser loads the extension from it.
 
+#### Firefox
+
+Firefox uses its own build of the extension, in the `extension-firefox` folder next to the one above, and in
+`TypeLens-extension-firefox-<version>.zip` on the release page.
+
+- **Permanent install:** when the release has a signed `TypeLens-extension-firefox-<version>.xpi`, open it in Firefox
+  (or drag it onto a Firefox window) and click **Add**.
+- **Quick try:** open `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…** and pick
+  `manifest.json` in the `extension-firefox` folder. Firefox removes temporary add-ons when it closes.
+
+If the popup says TypeLens needs access, click **Allow access**: Firefox can install extensions without their site
+permissions, and TypeLens needs monkeytype.com (to record) and 127.0.0.1 (to reach the desktop app).
+
 ### 3. Take a test
 
 1. Start the TypeLens desktop app and leave it running (it can sit in the background).
@@ -121,6 +141,25 @@ by hand. Either way, don't move or delete the folder: the browser loads the exte
 The first extension that connects is paired with the app automatically. The extension's toolbar badge shows how many
 tests are still waiting to be delivered, for example while the app is closed. Nothing is lost: they are sent the next
 time the app runs.
+
+## Using TypeLens without the desktop app
+
+The desktop app is optional. The extension contains the complete dashboard, every page included, so you can use
+TypeLens on a computer where you can't or don't want to install software (a school or work computer, a Chromebook, or
+just to try it out).
+
+1. Load the extension as in [step 2](#2-load-the-browser-extension) (from the extracted
+   `TypeLens-extension-<version>.zip`, or the Firefox build).
+2. Finish a test on monkeytype.com.
+3. Click the TypeLens toolbar button, then **Open dashboard**.
+
+New tests appear in the open dashboard as soon as you finish them, with no sync step. Your tests are stored in the
+browser's extension storage, so they stay on this computer and survive browser restarts, but they are deleted if you
+remove the extension. Use **Data → Export JSON** for a backup, and **Import** to bring it back or to move it to the
+desktop app.
+
+What only the desktop app does: automatic updates, start at login, notifications and keeping your data in plain files.
+If you run both, the extension keeps delivering every test to the app as well, so you can switch at any time.
 
 ## Updating
 
@@ -151,7 +190,7 @@ The sidebar has one page per kind of analysis. The filter bar at the top applies
 | **Replay** | What actually happened in a specific test? Watch it back at 0.5×–4× with a live keyboard. |
 | **Progress** | Am I improving? Long-term charts, improved and regressed n-grams, and streaks. |
 | **Practice** | What should I practise? Generates targeted text from your weak spots. |
-| **Data** | Sync, import, export, extension pairing, and deleting single tests. |
+| **Data** | Import, export, extension status and pairing, and deleting single tests. |
 
 ### A practice loop that works
 
@@ -202,8 +241,10 @@ Open **Settings** from the bottom of the sidebar (or press `Ctrl+,`, `Cmd+,` on 
 <summary><b>Tests don't show up in the app</b></summary>
 
 - Make sure the desktop app is running. The extension holds tests until it can deliver them, and the badge shows the count.
-- Open **Data** in TypeLens and click **Sync from extension**.
-- Check that the extension is enabled on `chrome://extensions` and that its folder still exists.
+- Click the TypeLens toolbar button and press **Sync now**. The popup shows whether it reached the app.
+- Check that the extension is enabled (`chrome://extensions`, or `about:addons` in Firefox) and that its folder still
+  exists.
+- In Firefox, if the popup shows **Allow access**, click it.
 - If you reinstalled the extension, its id changed and the app still trusts the old one. Click **Reset pairing** in
   the Extension panel on the **Data** page, then reload monkeytype.com.
 
@@ -288,7 +329,8 @@ npm test                  # unit tests
 npm run typecheck         # strict TypeScript across the workspaces
 npm run start:desktop     # run the desktop app from source
 npm run dev:desktop       # desktop app with hot reload
-npm run dist:linux        # .deb and .rpm   -> apps/desktop/release
+npm run build -w @typelens/extension   # extension -> apps/extension/dist (Chromium), dist-firefox (Firefox)
+npm run dist:linux        # .deb, .rpm and .pacman -> apps/desktop/release (needs rpm and bsdtar)
 npm run dist:win          # .exe and .zip   -> apps/desktop/release
 npm run dist:mac          # .dmg (on a Mac) -> apps/desktop/release
 ```

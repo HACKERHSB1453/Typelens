@@ -20,7 +20,7 @@ Requirements:
 
 - Node.js 22 (the CI uses Node 22 on Ubuntu and Windows)
 - npm (ships with Node)
-- Google Chrome, Edge or Brave, to test the extension
+- Google Chrome, Edge or Brave, and Firefox, to test the extension
 
 ```bash
 git clone https://github.com/HACKERHSB1453/Typelens.git
@@ -34,7 +34,7 @@ The repository is an npm workspace with five packages:
 | --- | --- | --- |
 | `@typelens/core` | `packages/core` | Analysis engine and data contract (pure TypeScript, no browser or Electron APIs) |
 | `@typelens/host-contract` | `packages/host-contract` | Types only: the `TypeLensHost` interface between the dashboard and its host |
-| `@typelens/extension` | `apps/extension` | Chrome MV3 extension: recorder, local store, popup, page bridge |
+| `@typelens/extension` | `apps/extension` | MV3 extension for Chromium and Firefox: recorder, local store, popup, page bridge, built-in dashboard |
 | `@typelens/web` | `apps/web` | React and Vite dashboard |
 | `@typelens/desktop` | `apps/desktop` | Electron shell: window, sync endpoint on 127.0.0.1, inbox, auto-update |
 
@@ -53,7 +53,8 @@ Run these from the repository root:
 
 For the dashboard alone, `npm run dev -w @typelens/web` starts the Vite development server. For the extension alone,
 `npm run build -w @typelens/extension` writes `apps/extension/dist`, which you load unpacked in Chrome
-(`chrome://extensions`, Developer mode, Load unpacked).
+(`chrome://extensions`, Developer mode, Load unpacked), and `apps/extension/dist-firefox`, which you load in Firefox
+(`about:debugging`, This Firefox, Load Temporary Add-on, pick its `manifest.json`).
 
 ## Code style
 
