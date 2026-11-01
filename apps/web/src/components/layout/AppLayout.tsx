@@ -2,6 +2,7 @@ import { Suspense, useEffect } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { Spinner } from '@/components/ui/Spinner';
 import { Sidebar } from './Sidebar';
+import { CommandPalette } from './CommandPalette';
 import { FilterBar } from './FilterBar';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { useSourceInfo } from '@/data';
@@ -60,6 +61,7 @@ export function AppLayout() {
   return (
     <div className="flex min-h-screen">
       <MonkeytypeThemeSync />
+      <CommandPalette />
       <Sidebar />
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         <UpdateBanner />

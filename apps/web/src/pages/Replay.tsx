@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/ui/PageHeader';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Pause, Play } from 'lucide-react';
@@ -88,7 +89,7 @@ function ReplayPicker() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-lg font-semibold text-[var(--text)]">Replay</h1>
+      <PageHeader title="Replay" description="Watch any test back keystroke by keystroke, with the result graph and per-word speed." />
       <Card className="p-0">
         <StateView
           loading={loading}

@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/ui/PageHeader';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart3 } from 'lucide-react';
@@ -182,7 +183,7 @@ export function Ngrams() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-lg font-semibold">N-grams</h1>
+      <PageHeader title="N-grams" description="Letter pairs and triples ranked by how much time they cost you. Tick a few and practise them." />
 
       <Card>
         <Tabs<Tab>

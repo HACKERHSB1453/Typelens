@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/ui/PageHeader';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
@@ -312,7 +313,7 @@ export function DataPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-lg font-semibold">Data</h1>
+      <PageHeader title="Data" description="Import, export and back up your tests, check the extension, and delete single tests." />
 
       {/* 1. Extension: pushes to the desktop app by itself, or is pulled through the page bridge in a browser */}
       {desktop ? (
