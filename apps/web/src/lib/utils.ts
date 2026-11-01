@@ -130,3 +130,10 @@ export function timeAgo(ts: number, now: number = Date.now()): string {
   if (h < 48) return `${h} h ago`;
   return `${Math.round(h / 24)} days ago`;
 }
+
+/** "2026-10-05" (a local calendar day) -> "Oct 5" */
+export function formatDayLabel(isoDay: string): string {
+  const [y, m, d] = isoDay.split('-').map(Number);
+  if (!y || !m || !d) return isoDay;
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}

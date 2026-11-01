@@ -1,4 +1,5 @@
-import { DASHBOARD_URL } from '../bridge-origins';
+import { DESKTOP_ORIGIN } from '@typelens/core/desktop';
+import { MONKEYTYPE_ORIGIN } from '../bridge-origins';
 import type { DesktopState } from '../desktop';
 import type { Msg } from '../protocol';
 
@@ -29,8 +30,16 @@ function textEl(tag: string, text: string): HTMLElement {
   return el;
 }
 
-/** true when the desktop app answered recently; decides whether "Open" goes to the app or the dev dashboard */
+/** true when the desktop app answered recently: then "Open app" is offered next to the built-in dashboard */
 let appReachable = false;
+
+/** what the recorder and the desktop push need; Firefox may install the extension without granting them */
+const ORIGINS = [`${MONKEYTYPE_ORIGIN}/*`, `${DESKTOP_ORIGIN}/*`];
+
+async function checkPermissions(): Promise<void> {
+  const ok = await chrome.permissions.contains({ origins: ORIGINS }).catch(() => true);
+  $('perm').hidden = ok;
+}
 
 function renderDesktop(s: State): void {
   const d = s.desktop;
@@ -46,9 +55,9 @@ function renderDesktop(s: State): void {
     text.textContent = s.pendingDesktop > 0 ? `Connected${ver} · ${s.pendingDesktop} tests waiting` : `Connected${ver} · all tests delivered`;
   } else {
     dot.className = 'dot';
-    text.textContent = 'Not running — start the TypeLens app';
+    text.textContent = 'Desktop app not running (optional)';
   }
-  $('open').textContent = appReachable ? 'Open TypeLens app' : 'Open web dashboard (dev)';
+  $('openApp').hidden = !appReachable;
 }
 
 async function refresh(): Promise<void> {
@@ -84,8 +93,21 @@ async function refresh(): Promise<void> {
 });
 
 $('open').addEventListener('click', () => {
-  // typelens:// hands off to the desktop app (brings it to the front); otherwise the dev dashboard
-  void chrome.tabs.create({ url: appReachable ? 'typelens://open' : DASHBOARD_URL });
+  // the dashboard bundled with the extension (no "tabs" permission, so it cannot look for an already open one)
+  void chrome.tabs.create({ url: chrome.runtime.getURL('dashboard/index.html') }).then(() => window.close());
+});
+
+$('openApp').addEventListener('click', () => {
+  // typelens:// hands off to the desktop app (brings it to the front)
+  void chrome.tabs.create({ url: 'typelens://open' });
+});
+
+$('grant').addEventListener('click', () => {
+  // must run inside the click (a user gesture), so no await before it
+  chrome.permissions.request({ origins: ORIGINS }).then(
+    () => void checkPermissions(),
+    () => void checkPermissions(),
+  );
 });
 
 $('sync').addEventListener('click', async () => {
@@ -113,6 +135,7 @@ $('export').addEventListener('click', async () => {
   setTimeout(() => URL.revokeObjectURL(url), 5000);
 });
 
+void checkPermissions();
 refresh().catch((err) => {
   $('last').textContent = `Error: ${err instanceof Error ? err.message : String(err)}`;
 });

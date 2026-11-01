@@ -31,7 +31,8 @@ packages/host-contract types only: the TypeLensHost interface the dashboard uses
    ^   ^   ^   ^
    |   |   |   +------ apps/desktop    (Electron: window, sync endpoint, inbox, store, updates)
    |   |   +---------- apps/web        (dashboard: React + Vite; also runs in a plain browser)
-   |   +-------------- apps/extension  (Chrome MV3: recorder, local store, popup, page bridge)
+   |   +-------------- apps/extension  (MV3 for Chromium and Firefox: recorder, local store, popup, page bridge,
+   |                                    and the dashboard page that hosts apps/web without the desktop app)
    +------------------ (every package above depends on packages/core)
 ```
 
@@ -72,8 +73,18 @@ Rules that follow from this:
   answers only four actions (`ping`, `list`, `get`, `ack`) and only for the origins in `bridge-origins.ts`.
 - `popup/popup.ts`, `static/popup.html`: the toolbar popup (recording switch, counts, desktop status, Sync now, open the
   app, export JSON).
+- `dashboard/host.ts`, `dashboard/entry.ts`: the `TypeLensHost` for `dashboard/index.html`, the copy of the dashboard
+  bundled with the extension. It runs before the dashboard and sets `window.typelensHost`, like the desktop preload.
+  The page has the extension's origin, so it reads and writes the recorder's own IndexedDB `typelens` directly: there
+  is one copy of the data and no sync step. The worker broadcasts `typelens:sessions-changed` after storing a test so
+  an open dashboard reloads, and the page sends `dash:changed` after it changed the database (badge, desktop delivery).
+  Its capability flag `builtInRecorder` is the only thing the UI looks at.
 - `build.mjs`: generates `manifest.json` from `package.json` and the shared constants, so the manifest cannot disagree
-  with the runtime checks.
+  with the runtime checks. It builds twice: `dist/` for Chromium (service worker, `minimum_chrome_version` 110) and
+  `dist-firefox/` for Firefox 128+ (event page, `browser_specific_settings.gecko`). Both include the dashboard, built
+  from `apps/web` with relative paths; in an extension page the dashboard uses a hash router, because there is no
+  server to answer deep links. Extension pages are recognised by scheme (`chrome-extension:` or `moz-extension:`)
+  and by the extension's own origin.
 
 The `desktop` field of the extension's stored sessions records delivery to the desktop app:
 
@@ -195,13 +206,13 @@ The desktop profile folder is Electron's `userData` for product name `TypeLens`:
 
 | Item | Windows | Linux | Notes |
 | --- | --- | --- | --- |
-| Profile folder | `%APPDATA%\TypeLens` | `~/.config/TypeLens` | macOS is not built or tested. |
+| Profile folder | `%APPDATA%\TypeLens` | `~/.config/TypeLens` | macOS: `~/Library/Application Support/TypeLens`. |
 | Sessions (analysed tests) | `data/sessions/<hex-id>.json` | same | One file per test. Long ids are hashed into the name. |
 | Preferences | `data/prefs.json` | same | Data source choice and practice history (last 20 generated texts). |
 | Inbox (received, not yet stored) | `inbox/<hex-id>.json` | same | Normally empty between pushes. |
 | Settings | `settings.json` | same | Window bounds, paired extension id, start at login, notify on new test. |
 | Logs | `logs/main.log` | same | Rotated to `main.log.old` at about 1 MB. Contains no keystroke content. |
-| Extension database | `typelens` in the browser's extension storage | same | Tests waiting for delivery, and their delivery state. |
+| Extension database | `typelens` in the browser's extension storage | same | Every recorded test and its delivery state. It is also the data of the dashboard built into the extension. |
 | Browser-only dashboard | `typelens-web` IndexedDB and `localStorage` in the browser | same | Only when the dashboard runs in a browser, not in the desktop app. |
 
 ## Updates
@@ -240,7 +251,8 @@ The full checklist is in [RELEASING.md](RELEASING.md). In short:
    changelog entries from `[Unreleased]` to the new version.
 2. Commit, then create and push a tag `vX.Y.Z` that matches the desktop version.
 3. `.github/workflows/release.yml` checks that the tag matches the version, builds the Windows installer and zip on
-   `windows-latest`, builds the `.deb`, `.rpm` and the extension zip on `ubuntu-latest`, and creates a **draft**
+   `windows-latest`, builds the `.deb`, `.rpm`, `.pacman` and both extension zips (Chromium and Firefox; plus a signed
+   `.xpi` when the `AMO_JWT_ISSUER` / `AMO_JWT_SECRET` secrets are set) on `ubuntu-latest`, and creates a **draft**
    GitHub Release with all artifacts, including the `latest*.yml` update manifests that the updater reads.
 4. A maintainer checks the artifacts and publishes the draft.
 

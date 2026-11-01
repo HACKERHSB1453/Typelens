@@ -87,10 +87,11 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v7
 
-      - name: Install rpm tooling
+      - name: Install rpm and pacman tooling
         run: |
           sudo apt-get update
-          sudo apt-get install -y rpm
+          # rpm builds the .rpm; bsdtar (libarchive-tools) writes the .MTREE of the Arch .pacman package
+          sudo apt-get install -y rpm libarchive-tools
 
       - name: Set up Node.js 22
         uses: actions/setup-node@v7
@@ -101,23 +102,41 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build the .deb and .rpm
+      - name: Build the .deb, .rpm and .pacman
         run: npm run dist:linux
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and zip the browser extension
+      - name: Zip the browser extension (Chromium and Firefox)
         env:
           VERSION: ${{ needs.version.outputs.version }}
+        # dist:linux already built both into apps/extension/dist and dist-firefox
         run: |
-          npm run build -w @typelens/extension
           mkdir -p release-artifacts
-          (cd apps/extension/dist && zip -r "$GITHUB_WORKSPACE/release-artifacts/TypeLens-extension-${VERSION}.zip" .)
+          (cd apps/extension/dist && zip -qr "$GITHUB_WORKSPACE/release-artifacts/TypeLens-extension-${VERSION}.zip" .)
+          (cd apps/extension/dist-firefox && zip -qr "$GITHUB_WORKSPACE/release-artifacts/TypeLens-extension-firefox-${VERSION}.zip" .)
+
+      - name: Sign the Firefox extension (optional)
+        # Release Firefox only installs signed add-ons. With the AMO_JWT_ISSUER and AMO_JWT_SECRET secrets set
+        # (addons.mozilla.org > Developer Hub > Manage API Keys), Mozilla signs an unlisted .xpi for the release.
+        # Without them this step is skipped and the unsigned zip is still published (see README).
+        env:
+          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+          AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          if [ -z "$AMO_JWT_ISSUER" ] || [ -z "$AMO_JWT_SECRET" ]; then
+            echo "AMO secrets not set: skipping Firefox signing"
+            exit 0
+          fi
+          npx --yes web-ext@8 sign --source-dir apps/extension/dist-firefox --artifacts-dir web-ext-artifacts \
+            --channel unlisted --api-key "$AMO_JWT_ISSUER" --api-secret "$AMO_JWT_SECRET"
+          cp web-ext-artifacts/*.xpi "release-artifacts/TypeLens-extension-firefox-${VERSION}.xpi"
 
       - name: Collect release files
         run: |
           mkdir -p release-artifacts
-          find apps/desktop/release -maxdepth 1 -type f \( -name '*.deb' -o -name '*.rpm' -o -name 'latest*.yml' -o -name '*.blockmap' \) -exec cp {} release-artifacts/ \;
+          find apps/desktop/release -maxdepth 1 -type f \( -name '*.deb' -o -name '*.rpm' -o -name '*.pacman' -o -name 'latest*.yml' -o -name '*.blockmap' \) -exec cp {} release-artifacts/ \;
           ls -la release-artifacts
 
       - name: Upload Linux artifacts
@@ -183,8 +202,13 @@ jobs:
           path: dist-artifacts
           merge-multiple: true
 
-      - name: List files to publish
-        run: ls -la dist-artifacts
+      - name: List files to publish and check none is missing
+        # fail_on_unmatched_files is off below because the signed .xpi is optional, so check the required ones here
+        run: |
+          ls -la dist-artifacts
+          for pattern in '*.exe' '*-win-*.zip' '*.deb' '*.rpm' '*.pacman' '*.dmg' 'latest*.yml' 'TypeLens-extension-[0-9]*.zip' 'TypeLens-extension-firefox-*.zip'; do
+            compgen -G "dist-artifacts/${pattern}" > /dev/null || { echo "::error::no file matches ${pattern}"; exit 1; }
+          done
 
       - name: Create or update the draft release
         # Pinned to a release tag; update deliberately.
@@ -195,12 +219,15 @@ jobs:
           draft: true
           prerelease: ${{ contains(github.ref_name, '-') }}
           generate_release_notes: true
-          fail_on_unmatched_files: true
+          # the .xpi exists only when the optional signing step ran
+          fail_on_unmatched_files: false
           files: |
             dist-artifacts/*.exe
             dist-artifacts/*.zip
             dist-artifacts/*.deb
             dist-artifacts/*.rpm
+            dist-artifacts/*.pacman
+            dist-artifacts/*.xpi
             dist-artifacts/*.dmg
             dist-artifacts/latest*.yml
             dist-artifacts/*.blockmap

@@ -25,6 +25,14 @@ export interface Db {
   all(): Promise<Session[]>;
   last(): Promise<Session | null>;
   clear(): Promise<void>;
+  /**
+   * Stores sessions whose id is not stored yet (imports from the dashboard page). They count as seen (synced = 1).
+   * Recorded tests still go to the desktop app; other sources (e.g. Monkeytype's CSV history) stay in the browser.
+   */
+  addMany(sessions: Session[]): Promise<{ added: number; skipped: number }>;
+  delete(id: string): Promise<void>;
+  /** marks every row synced: the dashboard page has shown them, so the badge clears */
+  markAllSynced(): Promise<void>;
 }
 
 const STORE = 'sessions';
@@ -164,6 +172,42 @@ export function createDb(factory: IDBFactory = indexedDB, name = 'typelens'): Db
     async clear() {
       const { s, tx } = await store('readwrite');
       s.clear();
+      await done(tx);
+    },
+    async addMany(sessions) {
+      const { s, tx } = await store('readwrite');
+      let added = 0;
+      let skipped = 0;
+      for (const session of sessions) {
+        if ((await wrap(s.count(session.id))) > 0) {
+          skipped++;
+          continue;
+        }
+        const recorded = session.source === 'monkeytype';
+        s.put({
+          ...session,
+          synced: 1,
+          desktop: recorded ? 0 : 2,
+          ...(recorded ? {} : { desktopError: 'imported history stays in the browser' }),
+        } satisfies Stored);
+        added++;
+      }
+      await done(tx);
+      return { added, skipped };
+    },
+    async delete(id) {
+      const { s, tx } = await store('readwrite');
+      s.delete(id);
+      await done(tx);
+    },
+    async markAllSynced() {
+      const { s, tx } = await store('readwrite');
+      s.index('synced').openCursor(IDBKeyRange.only(0)).onsuccess = (ev) => {
+        const cur = (ev.target as IDBRequest<IDBCursorWithValue | null>).result;
+        if (!cur) return;
+        cur.update({ ...cur.value, synced: 1 });
+        cur.continue();
+      };
       await done(tx);
     },
   };

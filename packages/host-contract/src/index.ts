@@ -4,7 +4,9 @@
  * Each runtime installs its own implementation:
  *   - desktop: apps/desktop's preload exposes it as `window.typelensHost` (storage, dialogs, updates live in the
  *     Electron main process);
- *   - browser: apps/web/src/host/webHost.ts builds one from IndexedDB, localStorage and the extension bridge.
+ *   - browser: apps/web/src/host/webHost.ts builds one from IndexedDB, localStorage and the extension bridge;
+ *   - extension: apps/extension/src/dashboard/host.ts installs it as `window.typelensHost` on the dashboard page
+ *     bundled with the browser extension, on top of the extension's own database.
  * The UI never checks "am I in Electron"; it reads `capabilities` to know what the platform can do.
  * Types only: keep this package free of runtime code so every side can import it cheaply.
  */
@@ -25,6 +27,8 @@ export interface Capabilities {
   /** the host can open folders in the file manager */
   openFolders: boolean;
   startAtLogin: boolean;
+  /** the recorder writes straight into this host's store (the dashboard inside the extension): nothing to sync */
+  builtInRecorder: boolean;
 }
 
 export interface AppInfo {
@@ -202,7 +206,7 @@ export type MenuAction = 'import' | 'export-json';
 
 declare global {
   interface Window {
-    /** installed by the desktop preload; absent in a plain browser */
+    /** installed by the desktop preload or the extension's dashboard page; absent in a plain browser tab */
     typelensHost?: TypeLensHost;
   }
 }
@@ -212,6 +216,7 @@ export const PREF_SOURCE = 'typelens.source';
 export const PREF_PRACTICE_GENERATED = 'typelens.practice.generated';
 export const PREF_PRACTICE_HISTORY = 'typelens.practice.history';
 export const PREF_THEME = 'typelens.theme';
+export const PREF_GOALS = 'typelens.goals';
 
 /** The settings page; not part of NAV_PATHS (those are the Ctrl/Cmd+1..9 pages). Opened with Ctrl/Cmd+, */
 export const SETTINGS_PATH = '/settings';

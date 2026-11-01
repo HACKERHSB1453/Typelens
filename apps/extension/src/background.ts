@@ -1,8 +1,13 @@
-/** MV3 service worker: owns the IndexedDB store, answers messages (see handlers.ts) and pushes to the desktop app. */
+/**
+ * Background worker (a service worker in Chromium, an event page in Firefox): owns the IndexedDB store, answers
+ * messages (see handlers.ts) and pushes to the desktop app. Only the promise-based chrome.* APIs that both
+ * browsers implement are used.
+ */
 import { createDb } from './db';
 import { handleMessage, updateBadge, type HandlerDeps } from './handlers';
 import { pushToDesktop, type DesktopDeps } from './desktop';
-import type { Msg } from './protocol';
+import { SESSIONS_CHANGED, type Msg } from './protocol';
+import { MONKEYTYPE_ORIGIN } from './bridge-origins';
 
 const SYNC_ALARM = 'typelens-desktop-sync';
 
@@ -17,6 +22,7 @@ const deps: HandlerDeps = {
     void chrome.action.setBadgeTextColor?.({ color: '#000000' });
   },
   syncDesktop: () => pushToDesktop(desktopDeps),
+  extensionOrigin: chrome.runtime.getURL(''),
 };
 
 const desktopDeps: DesktopDeps = {
@@ -30,8 +36,11 @@ chrome.runtime.onMessage.addListener((msg: Msg, sender, sendResponse) => {
   handleMessage(msg, url, deps).then(
     (data) => {
       sendResponse(data);
-      // a newly stored test goes to the desktop app straight away
-      if (msg.type === 'session') void pushToDesktop(desktopDeps);
+      if (msg.type === 'session') {
+        // a newly stored test goes to the desktop app straight away, and an open dashboard page reloads
+        void pushToDesktop(desktopDeps);
+        chrome.runtime.sendMessage({ type: SESSIONS_CHANGED }).catch(() => undefined); // no page open: nobody listens
+      }
     },
     (err: unknown) => sendResponse({ error: err instanceof Error ? err.message : String(err) }),
   );
@@ -44,7 +53,7 @@ chrome.runtime.onMessage.addListener((msg: Msg, sender, sendResponse) => {
  * silently lost (capture-entry.ts guards against ending up with two recorders in one page).
  */
 async function attachToOpenMonkeytypeTabs(): Promise<void> {
-  const tabs = await chrome.tabs.query({ url: 'https://monkeytype.com/*' });
+  const tabs = await chrome.tabs.query({ url: `${MONKEYTYPE_ORIGIN}/*` }).catch(() => [] as chrome.tabs.Tab[]);
   await Promise.all(
     tabs.map((t) =>
       t.id === undefined
@@ -74,6 +83,12 @@ chrome.runtime.onInstalled.addListener(() => {
   void updateBadge(deps);
   void attachToOpenMonkeytypeTabs();
   ensureSyncAlarm();
+  void pushToDesktop(desktopDeps);
+});
+// Firefox can install the extension without its host permissions (the user grants them later from the popup or
+// about:addons): once granted, attach to open Monkeytype tabs and retry the desktop app
+chrome.permissions?.onAdded?.addListener(() => {
+  void attachToOpenMonkeytypeTabs();
   void pushToDesktop(desktopDeps);
 });
 chrome.runtime.onStartup.addListener(() => {

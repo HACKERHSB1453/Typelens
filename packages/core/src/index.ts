@@ -12,3 +12,4 @@ export * from './export';
 export * from './fixtures';
 export * from './history';
 export * from './desktop';
+export * from './insights';

@@ -79,5 +79,5 @@ SmartScreen warning.
 
 - Denial of service against your own local app.
 - Issues that require a malicious program already running as your user account.
-- Problems in Monkeytype itself, or in Chrome, Edge, Brave, Electron or the operating system. Please report those to
+- Problems in Monkeytype itself, or in Chrome, Edge, Brave, Firefox, Electron or the operating system. Please report those to
   their maintainers.

@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'node:path';
 import fs from 'node:fs';
 
-const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf8')) as { version: string };
+const pkg = JSON.parse(fs.readFileSync(path.resolve(import.meta.dirname, 'package.json'), 'utf8')) as { version: string };
 
 // Port 5173 matches the extension bridge's allowed origins (apps/extension/src/bridge-origins.ts).
 // Bound to localhost only: the dashboard is for this computer, not the local network.
@@ -15,7 +15,7 @@ export default defineConfig({
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'),
+      '@': path.resolve(import.meta.dirname, 'src'),
     },
   },
   server: {
@@ -24,7 +24,7 @@ export default defineConfig({
     strictPort: true,
     fs: {
       // npm workspaces hoist packages (e.g. the Hack font files, @typelens/core) to the monorepo root
-      allow: [path.resolve(__dirname, '../..')],
+      allow: [path.resolve(import.meta.dirname, '../..')],
     },
   },
   preview: {

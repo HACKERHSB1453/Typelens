@@ -168,6 +168,13 @@ export function ExtensionPanel() {
           </li>
           <li>Finish a test on monkeytype.com. It shows up here within a few seconds.</li>
         </ol>
+        <p className="mt-2">
+          Edge, Brave, Opera and Vivaldi work the same way. For Firefox, install the signed{' '}
+          <code className="text-[var(--text)]">.xpi</code> from the releases page, or for a quick try open{' '}
+          <code className="text-[var(--text)]">about:debugging</code> &gt; This Firefox &gt; Load Temporary Add-on and pick{' '}
+          <code className="text-[var(--text)]">manifest.json</code> in the <code className="text-[var(--text)]">extension-firefox</code> folder next
+          to the one above.
+        </p>
       </div>
     </Card>
   );

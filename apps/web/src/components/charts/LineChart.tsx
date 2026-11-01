@@ -41,7 +41,7 @@ export function LineChart({
       fill: s.fill ?? false,
       tension: 0.3,
       borderWidth: 2,
-      pointRadius: 2,
+      pointRadius: labels.length > 40 ? 0 : 2,
       pointHoverRadius: 4,
       borderDash: s.dashed ? [4, 4] : undefined,
       pointBackgroundColor: s.color ?? CHART_COLORS.main,
@@ -67,7 +67,8 @@ export function LineChart({
       },
     },
     scales: {
-      x: { grid: gridStyle, ticks: tickStyle, border: { display: false } },
+      // long ranges have a label per day: show at most ~10, never rotated
+      x: { grid: { ...gridStyle, display: false }, ticks: { ...tickStyle, autoSkip: true, maxTicksLimit: 10, maxRotation: 0 }, border: { display: false } },
       y: {
         grid: gridStyle,
         ticks: formatY ? { ...tickStyle, callback: (v) => formatY(Number(v)) } : tickStyle,

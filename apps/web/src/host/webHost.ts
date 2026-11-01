@@ -95,7 +95,7 @@ export function createWebHost(deps: WebHostDeps = {}): TypeLensHost {
 
   return {
     kind: 'web',
-    capabilities: { nativeFiles: false, notifications: false, autoUpdate: false, extensionPush: false, openFolders: false, startAtLogin: false },
+    capabilities: { nativeFiles: false, notifications: false, autoUpdate: false, extensionPush: false, openFolders: false, startAtLogin: false, builtInRecorder: false },
     app: { info: async () => ({ name: 'TypeLens', version: deps.version ?? 'web', platform: 'web', dataDir: null }) },
 
     sessions: {

@@ -16,9 +16,11 @@ nodeGypRebuild: false
 files:
   - "**/*"
 extraResources:
-  # the Chrome extension, so users can "Load unpacked" straight from the install folder
+  # the browser extension, so users can load it straight from the install folder
   - from: ../extension/dist
     to: extension
+  - from: ../extension/dist-firefox
+    to: extension-firefox
 
 protocols:
   - name: TypeLens
@@ -63,12 +65,13 @@ dmg:
   artifactName: "${productName}-${version}-mac-${arch}.${ext}"
 
 linux:
-  # deb + rpm only. No AppImage: Ubuntu 23.10+ blocks its Chromium sandbox (AppArmor user namespaces) and its
+  # deb, rpm and pacman (Arch Linux, Manjaro, EndeavourOS). No AppImage: Ubuntu 23.10+ blocks its Chromium sandbox (AppArmor user namespaces) and its
   # temporary mount path breaks the typelens:// handler and the bundled extension folder. The deb/rpm keep
   # electron-builder's default SUID chrome-sandbox handling (do not add --no-sandbox).
   target:
     - deb
     - rpm
+    - pacman
   executableName: typelens
   # installs /usr/share/applications/typelens.desktop (from desktopName in package.json) with StartupWMClass=typelens,
   # so running windows match their launcher entry (Electron's app_id)
@@ -95,3 +98,8 @@ rpm:
   # Electron apps ship identical helper binaries, so their /usr/lib/.build-id debug links collide and dnf refuses to
   # install next to e.g. Slack or VS Code. TypeLens does not need those links.
   fpm: ["--rpm-rpmbuild-define=_build_id_links none"]
+pacman:
+  # electron-builder's default list names packages Electron does not need (ffmpeg, re2, snappy...) and http-parser,
+  # which Arch no longer ships, so `pacman -U` would fail. These are the libraries Electron actually links against.
+  depends: [gtk3, nss, alsa-lib, libxss, libxtst, libnotify, xdg-utils, at-spi2-core, util-linux-libs, libsecret, mesa]
+  artifactName: "${productName}-${version}-${arch}.${ext}"

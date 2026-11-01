@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/ui/PageHeader';
 import { useMemo, useState } from 'react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -205,7 +206,7 @@ export function Fingers() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-lg font-semibold">Fingers &amp; Hands</h1>
+      <PageHeader title="Fingers & Hands" description="Speed, errors and hold time per finger, left-versus-right balance and same-finger bigrams." />
 
       {/* 1) SVG hand diagram */}
       <Card>

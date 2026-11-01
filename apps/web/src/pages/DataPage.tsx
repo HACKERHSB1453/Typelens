@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/ui/PageHeader';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
@@ -89,6 +90,7 @@ export function DataPage() {
   const ds = useDataSource();
   const host = getHost();
   const desktop = host.capabilities.extensionPush; // the extension pushes to the app: no manual sync
+  const builtIn = host.capabilities.builtInRecorder; // the dashboard inside the extension reads the recorder's database
   const extension = useExtensionStatus();
   const location = useLocation();
   const sessions = useStoredSessions(); // always the real store: this page deletes/exports real data
@@ -311,11 +313,24 @@ export function DataPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-lg font-semibold">Data</h1>
+      <PageHeader title="Data" description="Import, export and back up your tests, check the extension, and delete single tests." />
 
       {/* 1. Extension: pushes to the desktop app by itself, or is pulled through the page bridge in a browser */}
       {desktop ? (
         <ExtensionPanel />
+      ) : builtIn ? (
+        <Card>
+          <CardHeader
+            title="Recording"
+            subtitle="This dashboard is part of the TypeLens extension and reads its tests directly."
+            right={<Badge tone="ok">Built in</Badge>}
+          />
+          <p className="text-xs text-[var(--sub)]">
+            Finish a test on monkeytype.com and it appears here, no sync needed. Your tests are stored in this browser&rsquo;s
+            extension storage. Export a JSON backup below before you remove the extension. The desktop app is optional:
+            if it is running, the extension also delivers every test to it.
+          </p>
+        </Card>
       ) : (
       <Card>
         <CardHeader
@@ -423,7 +438,7 @@ export function DataPage() {
           empty={sessionList.length === 0}
           onRetry={sessions.retry}
           emptyTitle="No sessions"
-          emptyHint={desktop ? 'Finish a test on monkeytype.com with the extension installed, or import a JSON export.' : 'Import a JSON export or sync from the extension to populate the dataset.'}
+          emptyHint={desktop || builtIn ? 'Finish a test on monkeytype.com with the extension installed, or import a JSON export.' : 'Import a JSON export or sync from the extension to populate the dataset.'}
         >
           <SortableTable
             columns={columns}

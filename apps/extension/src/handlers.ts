@@ -3,7 +3,7 @@
  * unit-tested without chrome.*. Every message type is authorised by WHO sent it:
  *   session       <- monkeytype.com tabs only
  *   sync:*        <- the web-app origins only (via the bridge content script)
- *   popup/export/clear/popup:sync <- extension pages only
+ *   popup/export/clear/popup:sync/dash:changed <- extension pages only
  */
 import { sanitizeMonkeytypeTheme } from '@typelens/core/desktop';
 import type { Session } from '@typelens/core/schema';
@@ -22,9 +22,27 @@ export interface HandlerDeps {
   setBadge(text: string): void;
   /** runs a desktop push now (popup "Sync now"); wired in background.ts */
   syncDesktop?: () => Promise<unknown>;
+  /**
+   * This extension's own origin (chrome-extension://<id> or moz-extension://<uuid>). When it is not given, any
+   * extension page counts; runtime messages only ever come from this extension, so that is still safe.
+   */
+  extensionOrigin?: string;
 }
 
-const isExtensionPage = (url: string | undefined): boolean => !!url && url.startsWith('chrome-extension://');
+/** Chromium uses chrome-extension://, Firefox moz-extension:// */
+const EXTENSION_SCHEMES = ['chrome-extension:', 'moz-extension:'];
+
+export function isExtensionPage(url: string | undefined, origin?: string): boolean {
+  if (!url) return false;
+  try {
+    const u = new URL(url);
+    if (!EXTENSION_SCHEMES.includes(u.protocol)) return false;
+    // URL.origin is "null" for non-web schemes in some engines, so compare scheme and host instead
+    return origin === undefined || `${u.protocol}//${u.host}` === origin.replace(/\/+$/, '');
+  } catch {
+    return false;
+  }
+}
 
 /** Structural check — what comes over a message channel is untrusted. */
 export function isSession(x: unknown): x is Session {
@@ -91,7 +109,7 @@ export async function handleMessage(msg: Msg, senderUrl: string | undefined, dep
       return { ok: true };
     }
     case 'popup:state': {
-      if (!isExtensionPage(senderUrl)) throw new Error('forbidden');
+      if (!isExtensionPage(senderUrl, deps.extensionOrigin)) throw new Error('forbidden');
       const [{ total, unsynced, pendingDesktop }, last, st] = await Promise.all([
         db.count(),
         db.last(),
@@ -110,19 +128,26 @@ export async function handleMessage(msg: Msg, senderUrl: string | undefined, dep
       };
     }
     case 'popup:sync': {
-      if (!isExtensionPage(senderUrl)) throw new Error('forbidden');
+      if (!isExtensionPage(senderUrl, deps.extensionOrigin)) throw new Error('forbidden');
       if (!deps.syncDesktop) throw new Error('sync unavailable');
       return deps.syncDesktop();
     }
     case 'export': {
-      if (!isExtensionPage(senderUrl)) throw new Error('forbidden');
+      if (!isExtensionPage(senderUrl, deps.extensionOrigin)) throw new Error('forbidden');
       return JSON.stringify({ v: 1, sessions: await db.all() });
     }
     case 'clear': {
-      if (!isExtensionPage(senderUrl)) throw new Error('forbidden');
+      if (!isExtensionPage(senderUrl, deps.extensionOrigin)) throw new Error('forbidden');
       if (msg.confirm !== 'DELETE') throw new Error('confirmation required');
       await db.clear();
       await updateBadge(deps);
+      return { ok: true };
+    }
+    case 'dash:changed': {
+      // the dashboard page wrote to the database itself (import, delete): refresh the badge, deliver imports
+      if (!isExtensionPage(senderUrl, deps.extensionOrigin)) throw new Error('forbidden');
+      await updateBadge(deps);
+      if (msg.deliver === true && deps.syncDesktop) void deps.syncDesktop().catch(() => undefined);
       return { ok: true };
     }
     default:

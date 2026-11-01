@@ -6,9 +6,24 @@ updates:
       interval: weekly
     open-pull-requests-limit: 10
     groups:
+      # packages that must move together: a PR that bumps only one of them builds but breaks at runtime
+      react:
+        patterns: [react, react-dom, '@types/react', '@types/react-dom']
+      vite:
+        patterns: [vite, '@vitejs/*', vitest, '@vitest/*']
+      electron:
+        patterns: [electron, electron-builder, electron-updater]
       dev-dependencies:
         dependency-type: development
         update-types: [minor, patch]
+    ignore:
+      # major migrations that need code changes; do them by hand
+      - dependency-name: tailwindcss
+        update-types: [version-update:semver-major]
+      - dependency-name: react-router-dom
+        update-types: [version-update:semver-major]
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
 
   - package-ecosystem: github-actions
     directory: /

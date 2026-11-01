@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/ui/PageHeader';
 import { useMemo, useState } from 'react';
 import { BarChart3 } from 'lucide-react';
 import { useFilters } from '@/hooks/useFilters';
@@ -103,7 +104,7 @@ export function Words() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-lg font-semibold">Words</h1>
+      <PageHeader title="Words" description="The words that slow you down or trip you up most often." />
 
       <Card>
         <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">

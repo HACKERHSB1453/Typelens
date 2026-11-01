@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/ui/PageHeader';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFilters } from '@/hooks/useFilters';
@@ -230,7 +231,7 @@ export function Keys() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-lg font-semibold">Keys</h1>
+      <PageHeader title="Keys" description="Which keys are slow or error-prone, and what you type instead. Click a key on the keyboard to inspect it." />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Heatmap (main, 2/3) */}

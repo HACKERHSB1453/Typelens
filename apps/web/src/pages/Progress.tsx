@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/ui/PageHeader';
 import { Flame, TrendingDown, TrendingUp, Trophy } from 'lucide-react';
 import { useFilters } from '@/hooks/useFilters';
 import { useProgress } from '@/hooks/useData';
@@ -8,7 +9,7 @@ import { Badge } from '@/components/ui/Badge';
 import { LineChart } from '@/components/charts/LineChart';
 import { BarChart } from '@/components/charts/BarChart';
 import { CHART_COLORS } from '@/components/charts/chartTheme';
-import { formatMs, formatNumber } from '@/lib/utils';
+import { formatDayLabel, formatMs, formatNumber } from '@/lib/utils';
 import type { GramTrend } from '@/data/types';
 
 /**
@@ -24,7 +25,7 @@ export function Progress() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-lg font-semibold">Progress</h1>
+      <PageHeader title="Progress" description="Long-term speed, accuracy, consistency and practice time, plus what improved and what got worse." />
 
       <StateView
         loading={loading}
@@ -57,7 +58,7 @@ export function Progress() {
               <Card>
                 <CardHeader title="WPM over time" subtitle="Daily average WPM" />
                 <LineChart
-                  labels={progress.points.map((p) => p.date.slice(5))}
+                  labels={progress.points.map((p) => formatDayLabel(p.date))}
                   series={[
                     { label: 'WPM', data: progress.points.map((p) => p.avgWpm), color: CHART_COLORS.main },
                   ]}
@@ -68,7 +69,7 @@ export function Progress() {
               <Card>
                 <CardHeader title="Accuracy over time" subtitle="Daily average accuracy" />
                 <LineChart
-                  labels={progress.points.map((p) => p.date.slice(5))}
+                  labels={progress.points.map((p) => formatDayLabel(p.date))}
                   series={[
                     { label: 'Accuracy', data: progress.points.map((p) => p.avgAcc), color: CHART_COLORS.ok },
                   ]}
@@ -81,7 +82,7 @@ export function Progress() {
               <Card>
                 <CardHeader title="Consistency over time" subtitle="Daily average consistency" />
                 <LineChart
-                  labels={progress.points.map((p) => p.date.slice(5))}
+                  labels={progress.points.map((p) => formatDayLabel(p.date))}
                   series={[
                     {
                       label: 'Consistency',
@@ -98,7 +99,7 @@ export function Progress() {
               <Card>
                 <CardHeader title="Minutes per day" subtitle="Active typing time" />
                 <BarChart
-                  labels={progress.points.map((p) => p.date.slice(5))}
+                  labels={progress.points.map((p) => formatDayLabel(p.date))}
                   series={[
                     { label: 'Minutes', data: progress.points.map((p) => p.minutes), color: CHART_COLORS.main },
                   ]}
