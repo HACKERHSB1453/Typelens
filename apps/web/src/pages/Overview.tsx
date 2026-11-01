@@ -1,5 +1,9 @@
 import { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Lightbulb, Target, Trophy, TrendingDown, TrendingUp, Info } from 'lucide-react';
+import { buildInsights, comparePeriods, goalProgress, personalBestIds, personalBests, type Insight } from '@typelens/core';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { useGoals } from '@/hooks/useGoals';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { SortableTable, type Column } from '@/components/ui/SortableTable';
@@ -19,6 +23,7 @@ import {
   formatDuration,
   formatDateTime,
   formatDate,
+  formatDayLabel,
 } from '@/lib/utils';
 import type { KeyStat, NgramStat, SessionSummary } from '@/data/types';
 
@@ -28,17 +33,46 @@ import type { KeyStat, NgramStat, SessionSummary } from '@/data/types';
  * "practice this" actions.
  */
 export function Overview() {
-  const { filters } = useFilters();
+  const { filters, rangePreset } = useFilters();
   const navigate = useNavigate();
+  const goals = useGoals();
 
   const analysis = useAnalysis(filters);
   const progress = useProgress(filters);
   const sessions = useSessions(filters);
-  const allSessions = useSessions(); // all-time, for the heatmap
+  // the same mode/language filters over all time: the heatmap, records, goals and the previous-period comparison
+  const allSessions = useSessions({ ...filters, from: undefined, to: undefined });
+
+  const now = Date.now();
+  const rangeLabel = rangePreset === 'all' ? 'all time' : `the last ${rangePreset.replace('d', ' days')}`;
+  const comparison = useMemo(
+    () => (allSessions.data && filters.from !== undefined ? comparePeriods(allSessions.data, filters.from, now) : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [allSessions.data, filters.from],
+  );
+  const insights = useMemo<Insight[]>(() => {
+    if (!allSessions.data) return [];
+    const from = filters.from ?? now - 30 * 86_400_000;
+    return buildInsights(allSessions.data, from, now, now);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allSessions.data, filters.from]);
+  const records = useMemo(() => personalBests(allSessions.data ?? []).slice(0, 6), [allSessions.data]);
+  const pbIds = useMemo(() => personalBestIds(allSessions.data ?? []), [allSessions.data]);
+  const goal = useMemo(
+    () => (allSessions.data && goals ? goalProgress(allSessions.data, goals, now) : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [allSessions.data, goals],
+  );
+  const vs = rangePreset === 'all' ? undefined : `vs previous ${rangePreset.replace('d', ' days')}`;
+  const deltaFor = (key: 'wpm' | 'acc' | 'consistency' | 'sessions' | 'minutes', format: (v: number) => string, epsilon = 0) =>
+    // nothing before the window (a new user, or demo data): a "+60 sessions" would only be noise
+    comparison && comparison.previous.sessions > 0 && comparison.delta[key] !== null
+      ? { value: comparison.delta[key], format, label: vs, epsilon }
+      : undefined;
 
   // Trend chart ------------------------------------------------------------
   const points = progress.data?.points ?? [];
-  const trendLabels = points.map((p) => p.date.slice(5)); // MM-DD
+  const trendLabels = points.map((p) => formatDayLabel(p.date));
   const trendSeries: LineSeries[] = [
     { label: 'WPM', data: points.map((p) => p.avgWpm), color: CHART_COLORS.main },
     { label: 'Accuracy', data: points.map((p) => p.avgAcc), color: CHART_COLORS.ok },
@@ -75,6 +109,12 @@ export function Overview() {
       cell: (r) => (
         <span>
           {r.config.mode} {r.config.mode2}
+          {pbIds.has(r.id) && (
+            <Badge tone="main" className="ml-2">
+              <Trophy className="mr-1 h-3 w-3" aria-hidden />
+              PB
+            </Badge>
+          )}
           {!r.completed && (
             <Badge tone="sub" className="ml-2">
               restarted
@@ -126,7 +166,16 @@ export function Overview() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-lg font-semibold">Overview</h1>
+      <PageHeader
+        title="Overview"
+        description={`Your typing over ${rangeLabel}${a ? ` · ${formatNumber(a.sessions)} tests` : ''}. Change the range and modes in the filter bar above.`}
+        actions={
+          <Button variant="primary" size="md" onClick={() => navigate('/practice')}>
+            <Target className="h-3.5 w-3.5" aria-hidden />
+            Practise weak spots
+          </Button>
+        }
+      />
 
       {/* 1) KPI cards ----------------------------------------------------- */}
       <StateView
@@ -139,15 +188,31 @@ export function Overview() {
       >
         {a && (
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
-            <KpiCard label="WPM" value={formatNumber(a.overall.wpm, 1)} hint="time-weighted average" tone="main" />
+            <KpiCard
+              label="WPM"
+              value={formatNumber(a.overall.wpm, 1)}
+              hint="time-weighted average"
+              tone="main"
+              delta={deltaFor('wpm', (v) => `${formatNumber(v, 1)} wpm`, 0.05)}
+            />
           <KpiCard label="Raw WPM" value={formatNumber(a.overall.rawWpm, 1)} hint="uncorrected speed" />
-          <KpiCard label="Accuracy" value={formatPercent(a.overall.acc)} hint="hit vs miss" />
-          <KpiCard label="Consistency" value={formatPercent(a.overall.consistency, 0)} />
-          <KpiCard label="Sessions" value={formatNumber(a.sessions)} />
+          <KpiCard
+            label="Accuracy"
+            value={formatPercent(a.overall.acc)}
+            hint="hit vs miss"
+            delta={deltaFor('acc', (v) => `${formatNumber(v, 1)} pts`, 0.05)}
+          />
+          <KpiCard
+            label="Consistency"
+            value={formatPercent(a.overall.consistency, 0)}
+            delta={deltaFor('consistency', (v) => `${formatNumber(v, 0)} pts`, 0.5)}
+          />
+          <KpiCard label="Sessions" value={formatNumber(a.sessions)} delta={deltaFor('sessions', (v) => formatNumber(v))} />
           <KpiCard
             label="Minutes practiced"
             value={`${formatNumber(a.minutes, 1)}m`}
             hint={formatDuration(a.minutes * 60)}
+            delta={deltaFor('minutes', (v) => `${formatNumber(v, 0)}m`, 0.5)}
           />
           <KpiCard label="Keystrokes" value={formatCompact(a.keystrokes)} />
           <KpiCard label="Median inter-key" value={formatMs(a.overall.medianIkiMs)} hint="two-key interval" />
@@ -160,6 +225,73 @@ export function Overview() {
           </div>
         )}
       </StateView>
+
+      {/* Insights and goals -------------------------------------------- */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader
+            title={
+              <span className="inline-flex items-center gap-2">
+                <Lightbulb className="h-4 w-4 text-[var(--main)]" aria-hidden /> Insights
+              </span>
+            }
+            subtitle={`What changed over ${rangeLabel === 'all time' ? 'the last 30 days' : rangeLabel}`}
+          />
+          {insights.length === 0 ? (
+            <p className="text-xs text-[var(--sub)]">
+              Take a few more tests. Insights appear once there is enough data to compare.
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {insights.map((i) => {
+                const Icon = i.tone === 'good' ? TrendingUp : i.tone === 'bad' ? TrendingDown : Info;
+                return (
+                  <li key={i.text} className="flex items-start gap-2.5 rounded-md bg-[var(--bg-elev)] px-3 py-2 text-xs leading-relaxed">
+                    <Icon
+                      className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${i.tone === 'bad' ? 'text-[var(--error)]' : i.tone === 'good' ? 'text-[var(--main)]' : 'text-[var(--sub)]'}`}
+                      aria-hidden
+                    />
+                    <span className="text-[var(--text)]">{i.text}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </Card>
+        <Card>
+          <CardHeader
+            title={
+              <span className="inline-flex items-center gap-2">
+                <Target className="h-4 w-4 text-[var(--main)]" aria-hidden /> Goals
+              </span>
+            }
+            subtitle="This week"
+            right={
+              <Link to="/settings#goals" className="text-[11px] text-[var(--sub)] underline-offset-2 hover:text-[var(--text)] hover:underline">
+                Edit
+              </Link>
+            }
+          />
+          {goal && goals ? (
+            <div className="space-y-4">
+              <GoalBar
+                label="Practice time"
+                value={`${formatNumber(goal.weekMinutes, 0)} / ${goals.weeklyMinutes || '–'} min`}
+                ratio={goal.weekRatio}
+                empty="No weekly goal set."
+              />
+              <GoalBar
+                label="Speed (7-day average)"
+                value={`${goal.recentWpm === null ? '–' : formatNumber(goal.recentWpm, 1)} / ${goals.targetWpm || '–'} wpm`}
+                ratio={goal.wpmRatio}
+                empty="Set a target WPM in Settings."
+              />
+            </div>
+          ) : (
+            <p className="text-xs text-[var(--sub)]">Loading…</p>
+          )}
+        </Card>
+      </div>
 
       {/* 2) WPM + accuracy trend ----------------------------------------- */}
       <Card>
@@ -176,6 +308,39 @@ export function Overview() {
           <LineChart labels={trendLabels} series={trendSeries} height={260} />
         </StateView>
       </Card>
+
+      {/* Personal bests ------------------------------------------------- */}
+      {records.length > 0 && (
+        <Card>
+          <CardHeader
+            title={
+              <span className="inline-flex items-center gap-2">
+                <Trophy className="h-4 w-4 text-[var(--main)]" aria-hidden /> Personal bests
+              </span>
+            }
+            subtitle="Fastest finished test per mode, all time (with the filter bar's modes and languages)"
+          />
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+            {records.map((r) => (
+              <button
+                key={r.key}
+                onClick={() => navigate(`/replay/${encodeURIComponent(r.best.id)}`)}
+                className="rounded-md border border-[var(--sub-2)] p-3 text-left transition-colors hover:border-[var(--sub)] hover:bg-[var(--bg-elev)]"
+                title="Open the replay"
+              >
+                <div className="truncate text-[11px] uppercase tracking-wider text-[var(--sub)]">{r.key}</div>
+                <div className="mt-1 text-xl font-bold tnum text-[var(--text)]">
+                  {formatNumber(r.best.wpm, 1)}
+                  <span className="ml-1 text-[11px] font-normal text-[var(--sub)]">wpm</span>
+                </div>
+                <div className="mt-1 text-[11px] text-[var(--sub)]">
+                  {formatPercent(r.best.acc)} · {formatDateTime(r.best.startedAt).split(',')[0]} · {r.tests} tests
+                </div>
+              </button>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {/* 3) Recent sessions table ---------------------------------------- */}
       <Card>
@@ -212,7 +377,7 @@ export function Overview() {
 
       {/* 4) Activity heatmap with streak ---------------------------------- */}
       <Card>
-        <CardHeader title="Activity" subtitle="Sessions per day, last ~12 months" />
+        <CardHeader title="Activity" subtitle="Tests per day over the last 12 months" />
         <StateView
           loading={allSessions.loading}
           error={allSessions.error}
@@ -314,6 +479,34 @@ export function Overview() {
           </div>
         </StateView>
       </Card>
+    </div>
+  );
+}
+
+function GoalBar({ label, value, ratio, empty }: { label: string; value: string; ratio: number | null; empty: string }) {
+  return (
+    <div>
+      <div className="mb-1.5 flex items-baseline justify-between gap-2 text-xs">
+        <span className="text-[var(--sub)]">{label}</span>
+        <span className="font-semibold tnum text-[var(--text)]">{ratio === null ? '' : value}</span>
+      </div>
+      {ratio === null ? (
+        <p className="text-[11px] text-[var(--sub)]">{empty}</p>
+      ) : (
+        <>
+          <div
+            className="h-2 overflow-hidden rounded-full bg-[var(--bg-elev)]"
+            role="progressbar"
+            aria-label={label}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(ratio * 100)}
+          >
+            <div className="h-full rounded-full bg-[var(--main)] transition-[width] duration-500" style={{ width: `${Math.max(2, ratio * 100)}%` }} />
+          </div>
+          <div className="mt-1 text-[11px] text-[var(--sub)]">{ratio >= 1 ? 'Goal reached. Nice work.' : `${Math.round(ratio * 100)}% of your goal`}</div>
+        </>
+      )}
     </div>
   );
 }

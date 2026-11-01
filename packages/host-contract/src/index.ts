@@ -216,6 +216,7 @@ export const PREF_SOURCE = 'typelens.source';
 export const PREF_PRACTICE_GENERATED = 'typelens.practice.generated';
 export const PREF_PRACTICE_HISTORY = 'typelens.practice.history';
 export const PREF_THEME = 'typelens.theme';
+export const PREF_GOALS = 'typelens.goals';
 
 /** The settings page; not part of NAV_PATHS (those are the Ctrl/Cmd+1..9 pages). Opened with Ctrl/Cmd+, */
 export const SETTINGS_PATH = '/settings';

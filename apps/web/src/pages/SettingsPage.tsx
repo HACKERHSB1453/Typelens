@@ -1,5 +1,8 @@
-import { useState, type ReactNode } from 'react';
-import { Check, Database, RefreshCw, Trash2 } from 'lucide-react';
+import { useEffect, useState, type ReactNode } from 'react';
+import { Check, Database, RefreshCw, Target, Trash2 } from 'lucide-react';
+import { Input } from '@/components/ui/Input';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { saveGoals, useGoals } from '@/hooks/useGoals';
 import { useDataSource } from '@/data';
 import { SettingsPanel } from '@/components/host/SettingsPanel';
 import { DeleteAllModal } from '@/components/DeleteAllModal';
@@ -216,11 +219,67 @@ function DangerZoneCard() {
  * Page
  * ------------------------------------------------------------------------- */
 
+/* ----------------------------------------------------------------------------
+ * Goals
+ * ------------------------------------------------------------------------- */
+
+function GoalsCard() {
+  const goals = useGoals();
+  const [minutes, setMinutes] = useState('');
+  const [wpm, setWpm] = useState('');
+  const [saved, setSaved] = useState(false);
+  useEffect(() => {
+    if (!goals) return;
+    setMinutes(String(goals.weeklyMinutes || ''));
+    setWpm(String(goals.targetWpm || ''));
+  }, [goals]);
+  useEffect(() => {
+    if (!saved) return;
+    const t = setTimeout(() => setSaved(false), 2000);
+    return () => clearTimeout(t);
+  }, [saved]);
+
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await saveGoals({ weeklyMinutes: Number(minutes) || 0, targetWpm: Number(wpm) || 0 });
+    setSaved(true);
+  };
+
+  return (
+    <Card id="goals">
+      <CardHeader
+        title="Goals"
+        subtitle="Shown on the Overview page. Leave a field empty for no goal."
+        right={<Target className="h-4 w-4 text-[var(--sub)]" aria-hidden />}
+      />
+      <form onSubmit={(e) => void save(e)} className="flex flex-wrap items-end gap-4">
+        <label className="flex flex-col gap-1 text-xs text-[var(--sub)]">
+          Practice per week (minutes)
+          <Input type="number" min={0} max={10000} inputMode="numeric" value={minutes} onChange={(e) => setMinutes(e.target.value)} placeholder="e.g. 60" className="w-44" />
+        </label>
+        <label className="flex flex-col gap-1 text-xs text-[var(--sub)]">
+          Target speed (WPM)
+          <Input type="number" min={0} max={400} inputMode="numeric" value={wpm} onChange={(e) => setWpm(e.target.value)} placeholder="e.g. 100" className="w-44" />
+        </label>
+        <Button type="submit" variant="primary" size="md">
+          {saved ? <Check className="h-3.5 w-3.5" aria-hidden /> : null}
+          {saved ? 'Saved' : 'Save goals'}
+        </Button>
+      </form>
+    </Card>
+  );
+}
+
 export function SettingsPage() {
+  // /settings#goals (from the Overview's Goals card) scrolls to that section
+  useEffect(() => {
+    if (window.location.hash.endsWith('#goals')) document.getElementById('goals')?.scrollIntoView({ block: 'start' });
+  }, []);
   return (
     <div className="space-y-4">
-      <h1 className="text-lg font-semibold">Settings</h1>
+      <PageHeader title="Settings" description="Appearance, goals and how TypeLens runs on this computer." />
       <AppearanceCard />
+      <GoalsCard />
       <SettingsPanel />
       <DangerZoneCard />
     </div>
