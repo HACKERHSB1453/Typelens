@@ -1,0 +1,29 @@
+# Maintainer: TypeLens contributors <https://github.com/HACKERHSB1453/Typelens>
+#
+# AUR package for the prebuilt TypeLens desktop app. It repackages the official .pacman file from the GitHub
+# release, so the AUR build and the release download install exactly the same files.
+# Bump: set pkgver, run `updpkgsums` and `makepkg --printsrcinfo > .SRCINFO` (see ../README.md).
+
+pkgname=typelens-bin
+pkgver=1.0.2
+pkgrel=1
+pkgdesc='Local-first typing analytics for Monkeytype: per-key, n-gram, finger and word stats, replays and practice text'
+arch=('x86_64')
+url='https://github.com/HACKERHSB1453/Typelens'
+license=('GPL-3.0-or-later')
+depends=('gtk3' 'nss' 'alsa-lib' 'libxss' 'libxtst' 'libnotify' 'xdg-utils' 'at-spi2-core' 'util-linux-libs' 'libsecret' 'mesa')
+provides=('typelens')
+conflicts=('typelens')
+options=('!strip' '!debug')
+source=("TypeLens-${pkgver}-x64.pacman::${url}/releases/download/v${pkgver}/TypeLens-${pkgver}-x64.pacman")
+noextract=("TypeLens-${pkgver}-x64.pacman")
+sha256sums=('SKIP') # replace with the real sum: run `updpkgsums` after setting pkgver
+
+package() {
+  bsdtar -xf "${srcdir}/TypeLens-${pkgver}-x64.pacman" -C "${pkgdir}" \
+    --exclude .PKGINFO --exclude .MTREE --exclude .INSTALL --exclude .BUILDINFO
+  install -dm755 "${pkgdir}/usr/bin"
+  ln -sf /opt/TypeLens/typelens "${pkgdir}/usr/bin/typelens"
+  # Arch kernels allow unprivileged user namespaces, so Chromium's sandbox does not need the SUID helper
+  chmod 755 "${pkgdir}/opt/TypeLens/chrome-sandbox"
+}

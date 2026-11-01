@@ -25,7 +25,7 @@
     "dev": "node build.mjs --dev && node scripts/dev.mjs",
     "pack": "node build.mjs && electron-builder --dir --publish never",
     "dist:win": "node build.mjs && electron-builder --win nsis zip --publish never",
-    "dist:linux": "node build.mjs && electron-builder --linux deb rpm --publish never",
+    "dist:linux": "node build.mjs && electron-builder --linux deb rpm pacman --publish never",
     "dist:mac": "node build.mjs && electron-builder --mac --publish never",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
