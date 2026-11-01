@@ -7,7 +7,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-01
+
 ### Added
+
+- **Insights.** The Overview opens with plain-language observations: how your speed and accuracy changed against
+  the period before, new personal bests, the time of day you type fastest, a nudge after a break, and when you
+  restart many tests.
+- **Compared with the previous period.** WPM, accuracy, consistency, tests and minutes show how much they changed
+  against the same number of days before the selected range.
+- **Personal bests.** The fastest finished test per mode (time 30, words 50, ...), each opening its replay. Tests
+  that beat your previous best get a **PB** badge in the session list.
+- **Goals.** Set a weekly practice time and a target WPM in **Settings → Goals**. The Overview tracks both.
+- **Command palette.** Press `Ctrl+K` (`Cmd+K` on macOS) or click **Search** to jump to any page, change the date
+  range, switch theme, import or export.
 
 - **TypeLens without the desktop app.** The extension now contains the whole dashboard. Click **Open dashboard** in
   the toolbar popup: every page works, new tests appear as soon as you finish them, and import and export work as in
@@ -20,6 +33,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- **A cleaner look.** Every page has a header that says what it shows. The sidebar groups pages (Analyse, Review,
+  Train, Manage), shows the TypeLens logo in your theme's colours, the number of tests and the version. The filter
+  bar uses pills for modes and languages and keeps the advanced options in an **Options** menu. Chart dates read
+  "Oct 5" instead of "10-05" and no longer overlap on long ranges.
 - **License.** TypeLens is now licensed under the GNU General Public License, version 3 or later (GPL-3.0-or-later).
   Versions up to and including 1.0.2 were released under the MIT License.
 - The popup's main button opens the built-in dashboard; **Open app** appears next to the desktop status when the app

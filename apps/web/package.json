@@ -1,7 +1,7 @@
 {
     "name": "@typelens/web",
     "private": true,
-    "version": "1.0.2",
+    "version": "1.1.0",
     "type": "module",
     "description": "TypeLens - local-first typing analytics dashboard for Monkeytype sessions.",
     "scripts": {

@@ -182,7 +182,7 @@ The sidebar has one page per kind of analysis. The filter bar at the top applies
 
 | Page | What it answers |
 | --- | --- |
-| **Overview** | How am I doing overall? WPM, accuracy, consistency, a trend chart, a 12-month activity heatmap and your weakest spots. |
+| **Overview** | How am I doing overall? KPIs compared with the previous period, insights, goals, personal bests, a trend chart, a 12-month activity heatmap and your weakest spots. |
 | **Keys** | Which keys are slow or error-prone? Click a key on the heatmap to inspect it and see what you mistype it as. |
 | **N-grams** | Which letter pairs and triples cost the most time? Sort by impact to find the biggest wins. |
 | **Words** | Which words are slowest or most often mistyped? |
@@ -207,10 +207,17 @@ On Monkeytype, go to **Account → export CSV**. Then in TypeLens open **Data �
 `Ctrl+I`). Imported tests add to your long-term WPM and accuracy history. They have no replay or key statistics,
 because Monkeytype never stored keystrokes for them.
 
+### Goals and personal bests
+
+Set a weekly practice time and a target speed in **Settings → Goals**; the Overview shows how far along you are this
+week. The **Personal bests** card lists your fastest test per mode, and tests that beat your previous best are marked
+**PB** in the session list.
+
 ### Keyboard shortcuts
 
 | Shortcut | Action |
 | --- | --- |
+| `Ctrl+K` (`Cmd+K` on macOS) | Command palette: go to a page, change the date range, switch theme, import or export |
 | `Ctrl+1` … `Ctrl+9` | Switch pages |
 | `Ctrl+I` | Import |
 | `Ctrl+E` | Export everything as JSON |
