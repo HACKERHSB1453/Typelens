@@ -49,23 +49,32 @@ match.
   result on a clean machine before you tag.
 - [ ] Commit the version bump and changelog as `chore: release vX.Y.Z`.
 
-## 3. Tag and build
+## 3. Merge, and the build starts
+
+Merge the version bump into `main` (a pull request is fine). When a push to `main` changes
+`apps/desktop/package.json` (or `release.yml`) and there is no `vX.Y.Z` tag for that version yet, `release.yml` builds
+the release by itself. Pushes that do not change the version are skipped after a few seconds.
+
+Pushing the tag by hand still works and does the same thing:
 
 ```bash
 git tag -a vX.Y.Z -m "TypeLens X.Y.Z"
-git push origin main
 git push origin vX.Y.Z
 ```
 
-The tag must be exactly `v` followed by the desktop version. The `version` job in `release.yml` fails the run if they
-differ, before anything is built.
+A pushed tag must be exactly `v` followed by the desktop version. The `version` job fails the run if they differ,
+before anything is built.
 
 The workflow then:
 
 1. builds the Windows NSIS installer and zip with `npm run dist:win` on `windows-latest`;
-2. installs `rpm`, then builds the `.deb` and `.rpm` with `npm run dist:linux` on `ubuntu-latest`;
-3. builds the extension (`npm run build -w @typelens/extension`) and zips it as `TypeLens-extension-X.Y.Z.zip`;
-4. creates a **draft** GitHub Release for the tag with all artifacts and generated release notes.
+2. installs `rpm` and `bsdtar`, then builds the `.deb`, `.rpm` and `.pacman` with `npm run dist:linux` on
+   `ubuntu-latest`, and zips the Chromium and Firefox extensions (and signs a Firefox `.xpi` when the AMO secrets are
+   set);
+3. builds the macOS `.dmg` files on `macos-latest`;
+4. checks that every required file exists and creates a **draft** GitHub Release `vX.Y.Z` with all artifacts and
+   generated release notes. For a release started from `main`, the tag does not exist yet: publishing the draft
+   creates it on the merged commit.
 
 To test the build without creating a release, run the workflow manually from the **Actions** tab (`workflow_dispatch`).
 Its artifacts appear on the run page and nothing is published.

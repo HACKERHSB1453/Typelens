@@ -1,11 +1,17 @@
 name: Release
 
-# Builds the desktop packages and the browser extension zip for a version tag (vX.Y.Z) and creates a DRAFT GitHub
-# Release with all artifacts. A maintainer checks the draft and publishes it by hand (see docs/RELEASING.md).
-# workflow_dispatch builds the same artifacts without creating a release, so a build can be tested first.
+# Builds the desktop packages and the browser extensions and creates a DRAFT GitHub Release with all artifacts.
+# A maintainer checks the draft and publishes it by hand (see docs/RELEASING.md). It starts when:
+#   - a commit on main changes apps/desktop/package.json (or this workflow) and the version has no vX.Y.Z tag yet:
+#     merging the version bump is the release (publishing the draft creates the tag on that commit);
+#   - a vX.Y.Z tag is pushed (the tag must match the version);
+#   - it is run by hand (workflow_dispatch): artifacts only, no release, so a build can be tested first.
 
 on:
   push:
+    branches: [main]
+    # GitHub ignores path filters for tag pushes, so tags always run
+    paths: [apps/desktop/package.json, .github/workflows/release.yml]
     tags:
       - 'v*.*.*'
   workflow_dispatch:
@@ -19,25 +25,45 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.read.outputs.version }}
+      # false: a push to main that did not bump to a new version, nothing to do
+      build: ${{ steps.read.outputs.build }}
+      # true: create the draft release
+      publish: ${{ steps.read.outputs.publish }}
     steps:
       - name: Check out the repository
         uses: actions/checkout@v7
 
-      - name: Read the desktop version and compare it with the tag
+      - name: Read the desktop version and decide what to do
         id: read
         shell: bash
         run: |
           version="$(node -p "require('./apps/desktop/package.json').version")"
           echo "version=${version}" >> "$GITHUB_OUTPUT"
           echo "Desktop version: ${version}"
-          if [ "${GITHUB_REF_TYPE}" = "tag" ] && [ "${GITHUB_REF_NAME}" != "v${version}" ]; then
-            echo "::error::Tag ${GITHUB_REF_NAME} does not match apps/desktop/package.json version ${version}. Bump the version first."
-            exit 1
+          build=true
+          publish=false
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            if [ "${GITHUB_REF_NAME}" != "v${version}" ]; then
+              echo "::error::Tag ${GITHUB_REF_NAME} does not match apps/desktop/package.json version ${version}. Bump the version first."
+              exit 1
+            fi
+            publish=true
+          elif [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+            if [ -n "$(git ls-remote --tags origin "refs/tags/v${version}")" ]; then
+              echo "v${version} is already released: nothing to do."
+              build=false
+            else
+              echo "New version ${version} on main: building the draft release."
+              publish=true
+            fi
           fi
+          echo "build=${build}" >> "$GITHUB_OUTPUT"
+          echo "publish=${publish}" >> "$GITHUB_OUTPUT"
 
   build-windows:
     name: Build Windows packages
     needs: version
+    if: needs.version.outputs.build == 'true'
     runs-on: windows-latest
     defaults:
       run:
@@ -79,6 +105,7 @@ jobs:
   build-linux:
     name: Build Linux packages and extension zip
     needs: version
+    if: needs.version.outputs.build == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -149,6 +176,7 @@ jobs:
   build-macos:
     name: Build macOS disk images
     needs: version
+    if: needs.version.outputs.build == 'true'
     runs-on: macos-latest
     defaults:
       run:
@@ -189,8 +217,8 @@ jobs:
   publish:
     name: Create draft GitHub Release
     needs: [version, build-windows, build-linux, build-macos]
-    # Only tag builds publish; a manual run just produces the artifacts.
-    if: startsWith(github.ref, 'refs/tags/v')
+    # Tag pushes and version bumps on main publish; a manual run just produces the artifacts.
+    if: needs.version.outputs.publish == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -214,7 +242,9 @@ jobs:
         # Pinned to a release tag; update deliberately.
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ github.ref_name }}
+          tag_name: v${{ needs.version.outputs.version }}
+          # for a version bump on main the tag does not exist yet: publishing the draft creates it on this commit
+          target_commitish: ${{ github.sha }}
           name: TypeLens ${{ needs.version.outputs.version }}
           draft: true
           prerelease: ${{ contains(github.ref_name, '-') }}

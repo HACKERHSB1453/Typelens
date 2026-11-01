@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- Releases start by themselves when a version bump is merged into `main`; pushing a tag is no longer needed.
+
 ## [1.1.0] - 2026-11-01
 
 ### Added
