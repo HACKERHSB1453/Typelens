@@ -1,5 +1,5 @@
 import { Suspense, useEffect } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Spinner } from '@/components/ui/Spinner';
 import { Sidebar } from './Sidebar';
 import { CommandPalette } from './CommandPalette';
@@ -18,32 +18,31 @@ function MonkeytypeThemeSync() {
   return null;
 }
 
-/** Shown while there are no real sessions (or when the user chose the demo): says so, and how to fix it. */
+/** Shown while there are no real sessions (or when the user chose the demo): says so, and where to go next. */
 function DemoBanner() {
   const { effective, pref, realCount, setPref } = useSourceInfo();
-  const { extensionPush: desktop, builtInRecorder: builtIn } = getHost().capabilities;
   if (effective !== 'demo') return null;
+  const none = realCount === 0 || realCount === null;
   return (
     <div role="status" className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--sub-2)] bg-[var(--bg-elev)] px-4 py-2 text-xs md:px-6">
       <span>
-        <strong className="text-[var(--main)]">Demo data.</strong>{' '}
-        {realCount === 0 || realCount === null
-          ? builtIn
-            ? 'These charts are made up. Finish a test on monkeytype.com and it appears here automatically.'
-            : desktop
-            ? 'These charts are made up. Install the browser extension (Data > Browser extension), then finish a test on monkeytype.com. It appears here automatically.'
-            : 'These charts are made up. Install the TypeLens extension, finish a test on monkeytype.com, then open Data and press Sync.'
+        <strong className="text-[var(--main)]">You are looking at demo data.</strong>{' '}
+        {none
+          ? 'These numbers are made up, so you can see what TypeLens shows. Set it up to see your own typing.'
           : `You have ${realCount} real test${realCount === 1 ? '' : 's'}, but demo data is switched on.`}
       </span>
-      <span className="flex gap-3">
-        {pref === 'demo' && (
-          <button className="underline hover:text-[var(--main)]" onClick={() => setPref('auto')}>
-            Use my data
+      <span className="flex items-center gap-3">
+        {pref === 'demo' ? (
+          <button className="rounded-md bg-[var(--main)] px-2.5 py-1 font-semibold text-[var(--bg)] hover:brightness-110" onClick={() => setPref('auto')}>
+            Show my data
           </button>
+        ) : (
+          none && (
+            <Link className="rounded-md bg-[var(--main)] px-2.5 py-1 font-semibold text-[var(--bg)] hover:brightness-110" to="/setup">
+              Set up TypeLens →
+            </Link>
+          )
         )}
-        <Link className="underline hover:text-[var(--main)]" to="/data">
-          Go to Data
-        </Link>
       </span>
     </div>
   );
@@ -55,6 +54,9 @@ function DemoBanner() {
  * down naturally on long pages (flex-col + min-h-screen + main flex-1).
  */
 export function AppLayout() {
+  // the filter bar only changes the analysis pages
+  const { pathname } = useLocation();
+  const showFilters = !['/setup', '/settings', '/data'].includes(pathname);
   useHostNavigation(); // desktop menu: Ctrl/Cmd+1..9 switch pages, File > Import / Export
   const local = getHost().kind === 'desktop' ? 'this computer' : 'this browser';
   const themeVersion = useThemeVersion(); // canvas charts keep their colours: remount pages on a theme change
@@ -65,8 +67,8 @@ export function AppLayout() {
       <Sidebar />
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         <UpdateBanner />
-        <FilterBar />
-        <DemoBanner />
+        {showFilters && <FilterBar />}
+        {pathname !== '/setup' && <DemoBanner />}
         <main className="flex-1 p-4 md:p-6">
           <ErrorBoundary label="page" key={themeVersion}>
             {/* pages are lazy-loaded chunks: without this boundary, opening a not-yet-loaded page crashes */}

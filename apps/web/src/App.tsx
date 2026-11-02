@@ -14,6 +14,7 @@ const Progress = lazy(() => import('./pages/Progress').then((m) => ({ default: m
 const Practice = lazy(() => import('./pages/Practice').then((m) => ({ default: m.Practice })));
 const DataPage = lazy(() => import('./pages/DataPage').then((m) => ({ default: m.DataPage })));
 const SettingsPage = lazy(() => import('./pages/SettingsPage').then((m) => ({ default: m.SettingsPage })));
+const SetupPage = lazy(() => import('./pages/SetupPage').then((m) => ({ default: m.SetupPage })));
 const NotFound = lazy(() => import('./pages/NotFound').then((m) => ({ default: m.NotFound })));
 
 export default function App() {
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="/practice" element={<Practice />} />
         <Route path="/data" element={<DataPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/setup" element={<SetupPage />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

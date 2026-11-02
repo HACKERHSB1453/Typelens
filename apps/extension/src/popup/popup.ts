@@ -82,10 +82,16 @@ async function refresh(): Promise<void> {
     const when = new Date(s.last.at).toLocaleString();
     const stats = s.last.wpm !== null ? `${Math.round(s.last.wpm)} wpm, ${Math.round(s.last.acc ?? 0)}% acc` : 'no result';
     last.append('Last: ', textEl('b', stats), ` · ${s.last.mode}${s.last.completed ? '' : ' (incomplete)'} · ${when}`);
-  } else {
-    last.textContent = 'No tests recorded yet. Open monkeytype.com and finish a test.';
   }
+  // first run: say exactly what to do instead of showing empty numbers
+  $('start').hidden = s.total > 0;
+  $('open').classList.toggle('primary', s.total > 0);
+  last.hidden = s.total === 0;
 }
+
+$('openMt').addEventListener('click', () => {
+  void chrome.tabs.create({ url: `${MONKEYTYPE_ORIGIN}/` }).then(() => window.close());
+});
 
 ($('rec') as HTMLInputElement).addEventListener('change', async (e) => {
   await chrome.storage.local.set({ paused: !(e.target as HTMLInputElement).checked });

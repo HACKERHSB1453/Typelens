@@ -8,7 +8,7 @@
 </head>
 <body>
   <header>
-    <h1>TypeLens</h1>
+    <h1><img src="icon-48.png" alt="" width="20" height="20" />TypeLens</h1>
     <label class="switch" title="Pause or resume recording">
       <input type="checkbox" id="rec" />
       <span id="recLabel">Recording</span>
@@ -24,7 +24,7 @@
 
   <section class="grid">
     <div><b id="total">–</b><span>tests stored</span></div>
-    <div><b id="unsynced">–</b><span>not yet delivered</span></div>
+    <div><b id="unsynced">–</b><span>waiting for the app</span></div>
   </section>
 
   <section class="desk">
@@ -34,7 +34,17 @@
     <button id="sync" class="small">Sync now</button>
   </section>
 
-  <p id="last" class="last">No tests recorded yet. Open monkeytype.com and finish a test.</p>
+  <div id="start" class="start" hidden>
+    <b>Get started</b>
+    <ol>
+      <li>Open monkeytype.com (reload it if it was already open).</li>
+      <li>Type a test to the end.</li>
+      <li>Click <b>Open dashboard</b> below to see your stats.</li>
+    </ol>
+    <button id="openMt" class="primary">Open monkeytype.com</button>
+  </div>
+
+  <p id="last" class="last"></p>
 
   <div class="buttons">
     <button id="open" class="primary">Open dashboard</button>

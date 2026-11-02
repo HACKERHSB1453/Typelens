@@ -19,6 +19,7 @@ import {
   Type,
   Upload,
   User,
+  Rocket,
 } from 'lucide-react';
 import { useFilters, type RangePreset } from '@/hooks/useFilters';
 import { useSourceInfo } from '@/data';
@@ -99,6 +100,7 @@ export function CommandPalette() {
     const range = (r: RangePreset) => () => f.setRangePreset(r);
     const menu = (menuAction: 'import' | 'export-json') => () => navigate('/data', { state: { menuAction, nonce: Date.now() } });
     return [
+      { id: 'p-setup', group: 'Go to', label: 'Get started (setup guide)', icon: Rocket, run: go('/setup'), keywords: 'install extension help setup how' },
       { id: 'p-overview', group: 'Go to', label: 'Overview', icon: Activity, run: go('/'), keywords: 'home dashboard kpi' },
       { id: 'p-keys', group: 'Go to', label: 'Keys', icon: Keyboard, run: go('/keys'), keywords: 'heatmap keyboard' },
       { id: 'p-ngrams', group: 'Go to', label: 'N-grams', icon: Type, run: go('/ngrams'), keywords: 'bigrams trigrams' },

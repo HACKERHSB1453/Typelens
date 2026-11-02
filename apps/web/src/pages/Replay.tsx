@@ -89,7 +89,7 @@ function ReplayPicker() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title="Replay" description="Watch any test back keystroke by keystroke, with the result graph and per-word speed." />
+      <PageHeader title="Replay" description="Click any test in the list to watch it back keystroke by keystroke, with its result graph and the speed of every word." />
       <Card className="p-0">
         <StateView
           loading={loading}
