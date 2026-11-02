@@ -7,9 +7,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-02
+
+### Added
+
+- **Get started guide.** A new page (top of the sidebar until your first test arrives, and in the command palette)
+  with the exact clicks to add the extension in Chrome, Edge, Brave, Opera, Vivaldi or Firefox, your extension
+  folder with a Copy button, and a link to monkeytype.com. Each step ticks itself off when TypeLens detects it.
+- The extension popup tells first-time users what to do, with an **Open monkeytype.com** button.
+
 ### Changed
 
 - Releases start by themselves when a version bump is merged into `main`; pushing a tag is no longer needed.
+- Clearer setup instructions in the README: two paths (desktop app, or browser only), each complete on its own, and
+  one section with the steps for every browser.
+- The demo-data banner says what it is and links to the setup guide. The Data page explains the extension in plain
+  words instead of "companion extension" and "capture buffer".
+- The filter bar is hidden on pages it doesn't affect (Get started, Data, Settings).
+
+### Fixed
+
+- The sidebar and favicon showed a "Z" logo left over from the project template instead of the TypeLens lens. Both
+  now use the lens, the same as the app and extension icons; the leftover file and template scripts are removed.
+- The two goal fields in Settings had different widths.
 
 ## [1.1.0] - 2026-11-01
 

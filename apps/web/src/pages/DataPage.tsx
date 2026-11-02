@@ -1,6 +1,6 @@
 import { PageHeader } from '@/components/ui/PageHeader';
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import {
   AlertTriangle,
@@ -335,7 +335,7 @@ export function DataPage() {
       <Card>
         <CardHeader
           title="Extension"
-          subtitle="Sync data from the Monkeytype companion extension."
+          subtitle="Copies the tests the TypeLens extension recorded into this page."
           right={
             extension.loading ? (
               <Badge tone="sub">Checking…</Badge>
@@ -354,7 +354,11 @@ export function DataPage() {
             Sync from extension
           </Button>
           <p className="text-xs text-[var(--sub)]">
-            Pulls new sessions from the extension&rsquo;s local capture buffer.
+            Run this after taking tests on monkeytype.com. Not installed yet? Follow the{' '}
+            <Link className="underline hover:text-[var(--text)]" to="/setup">
+              setup guide
+            </Link>
+            .
           </p>
         </div>
         {syncReport && <ImportReportView report={syncReport} />}
@@ -370,7 +374,7 @@ export function DataPage() {
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           <Button variant="outline" size="md" className="w-full" onClick={() => void handleImport()} disabled={ioBusy !== null}>
             {ioBusy === 'import' ? <Spinner size="sm" /> : <Upload className="h-3.5 w-3.5" />}
-            Import JSON / Monkeytype CSV
+            Import file
           </Button>
           <Button
             variant="outline"

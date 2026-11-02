@@ -66,100 +66,95 @@ can paste straight into Monkeytype.
 
 ## Getting started
 
-Setup takes about two minutes: install the desktop app, load the browser extension, and take a test.
+There are two ways to use TypeLens. Both record the same data and show the same dashboard.
 
-> **Don't want to install an app?** The extension has the whole dashboard built in. Skip step 1, load the extension
-> (step 2), then see [Using TypeLens without the desktop app](#using-typelens-without-the-desktop-app).
-
-### 1. Install the desktop app
-
-Download the package for your system from the
-[**latest release**](https://github.com/HACKERHSB1453/Typelens/releases/latest).
-
-| System | File | Install |
+| | **A. Desktop app + extension** (recommended) | **B. Browser only** |
 | --- | --- | --- |
-| **Windows 10 / 11** | `TypeLens-Setup-<version>-x64.exe` | Run the installer. A portable `TypeLens-<version>-win-x64.zip` is also available (it does not auto-update). |
-| **macOS (Apple Silicon)** | `TypeLens-<version>-mac-arm64.dmg` | Open the `.dmg` and drag TypeLens to Applications. See the first-launch note below. |
-| **macOS (Intel)** | `TypeLens-<version>-mac-x64.dmg` | Same as above. |
-| **Ubuntu 22.04+ / Debian 12+** | `TypeLens-<version>-amd64.deb` | `sudo apt install ./TypeLens-<version>-amd64.deb` |
-| **Fedora / RHEL family** | `TypeLens-<version>-x86_64.rpm` | `sudo dnf install ./TypeLens-<version>-x86_64.rpm` |
-| **Arch Linux / Manjaro / EndeavourOS** | `TypeLens-<version>-x64.pacman` | `sudo pacman -U ./TypeLens-<version>-x64.pacman` |
+| Install | The app, then the extension | Only the extension |
+| Where the dashboard opens | In the TypeLens app | In a browser tab (toolbar button → **Open dashboard**) |
+| Updates | Automatic (Windows, Linux) | By hand |
+| Good for | Your own computer | School or work computers, Chromebooks, trying it out |
 
-Install with `apt`, `dnf` or `pacman` so the required libraries are pulled in automatically. Arch users can also use
-the AUR recipe in [`packaging/aur`](packaging/aur/README.md) (`typelens-bin`).
+Already installed and stuck? Open **Get started** in the TypeLens sidebar. It shows these same steps for your browser
+and ticks each one off when it's done.
 
-> **macOS first launch:** the app is not notarized by Apple yet, so macOS says it *"cannot be opened because the
-> developer cannot be verified"*. Right-click (or Control-click) TypeLens in Applications, choose **Open**, then
-> **Open** again. You only need to do this once. On macOS 15+, if there is no Open button, go to
-> **System Settings → Privacy & Security** and click **Open Anyway**. Automatic updates are not available on macOS yet:
-> download new versions from the releases page.
+### A. Desktop app + extension
 
-> **Windows SmartScreen:** the installer is not code-signed yet, so Windows may show *"Windows protected your PC"*.
-> Click **More info → Run anyway**.
+**Step 1: Install the app.** Download the file for your system from the
+[**latest release**](https://github.com/HACKERHSB1453/Typelens/releases/latest) (scroll down to **Assets**):
 
-### 2. Load the browser extension
+| Your system | Download | Then |
+| --- | --- | --- |
+| **Windows 10 / 11** | `TypeLens-Setup-<version>-x64.exe` | Double-click it and follow the installer. |
+| **Mac with Apple chip (M1 or newer)** | `TypeLens-<version>-mac-arm64.dmg` | Open it and drag **TypeLens** into **Applications**. |
+| **Mac with Intel chip** | `TypeLens-<version>-mac-x64.dmg` | Same as above. Not sure which Mac? Apple menu → **About This Mac** → "Chip". |
+| **Ubuntu / Debian / Mint** | `TypeLens-<version>-amd64.deb` | In a terminal in your Downloads folder: `sudo apt install ./TypeLens-<version>-amd64.deb` |
+| **Fedora** | `TypeLens-<version>-x86_64.rpm` | `sudo dnf install ./TypeLens-<version>-x86_64.rpm` |
+| **Arch / Manjaro / EndeavourOS** | `TypeLens-<version>-x64.pacman` | `sudo pacman -U ./TypeLens-<version>-x64.pacman` (or the AUR package, see [`packaging/aur`](packaging/aur/README.md)) |
 
-The extension is what records your tests. It works in **Chrome, Edge, Brave, Opera and Vivaldi** (version 110 or
-newer) and in **Firefox** (version 128 or newer, see [Firefox](#firefox) below).
+Replace `<version>` with the version you downloaded, e.g. `1.1.0`. The first time you open TypeLens:
 
-1. Open `chrome://extensions` (Edge: `edge://extensions`, Brave: `brave://extensions`).
-2. Turn on **Developer mode** (top-right toggle).
-3. Click **Load unpacked** and select the extension folder that comes with the app:
+- **Windows** may say *"Windows protected your PC"* because the installer isn't code-signed yet. Click
+  **More info**, then **Run anyway**.
+- **macOS** may say the app *"cannot be opened because the developer cannot be verified"*. In **Applications**,
+  right-click TypeLens, choose **Open**, then **Open** again. On macOS 15 or newer, if there's no Open button, go to
+  **System Settings → Privacy & Security**, scroll down and click **Open Anyway**. You only do this once.
 
-   | System | Extension folder |
-   | --- | --- |
-   | Windows | `%LOCALAPPDATA%\Programs\TypeLens\resources\extension` (default install location) |
-   | macOS | `/Applications/TypeLens.app/Contents/Resources/extension` (in the folder picker, press `Cmd+Shift+G` and paste the path) |
-   | Linux | `/opt/TypeLens/resources/extension` |
+**Step 2: Add the extension to your browser.** The extension is what records your typing. It comes with the app, so
+there's nothing else to download. Follow the steps for your browser below, using this folder:
 
-   In TypeLens, **File → Open browser-extension folder** opens it for you.
+| Your system | Extension folder (Chrome, Edge, Brave, Opera, Vivaldi) |
+| --- | --- |
+| Windows | `%LOCALAPPDATA%\Programs\TypeLens\resources\extension` |
+| macOS | `/Applications/TypeLens.app/Contents/Resources/extension` (in the folder picker, press `Cmd+Shift+G` and paste it) |
+| Linux | `/opt/TypeLens/resources/extension` |
 
-**Use the app's folder.** When TypeLens updates, it replaces this folder with the matching new extension, so the
-extension stays up to date with the app (see [Updating](#updating)). You can also download
-`TypeLens-extension-<version>.zip` from the release and extract it somewhere permanent, but then you have to update it
-by hand. Either way, don't move or delete the folder: the browser loads the extension from it.
+For Firefox, use the `extension-firefox` folder next to it. In the app, **Get started** shows your exact folder with a
+**Copy** button, and **File → Open browser-extension folder** opens it.
+
+**Step 3: Take a test.** Keep the app running (it can be in the background), go to
+[monkeytype.com](https://monkeytype.com) (reload it if it was already open) and type a test to the end. It shows up in
+TypeLens within a few seconds, and the demo data is replaced by yours.
+
+The extension's toolbar badge counts tests waiting for the app, for example while it's closed. They're delivered the
+next time it runs, so nothing is lost.
+
+### B. Browser only
+
+1. Download `TypeLens-extension-<version>.zip` (or `TypeLens-extension-firefox-<version>.zip` for Firefox) from the
+   [**latest release**](https://github.com/HACKERHSB1453/Typelens/releases/latest).
+2. Unzip it into a folder you'll keep, for example `Documents/TypeLens-extension`. Don't delete the folder later: the
+   browser loads the extension from it every time it starts.
+3. Add the extension from that folder, following the steps for your browser below.
+4. Go to [monkeytype.com](https://monkeytype.com) and type a test to the end.
+5. Click the TypeLens button in the toolbar, then **Open dashboard**.
+
+New tests appear in the open dashboard as soon as you finish them. They're stored in the browser's extension storage
+on this computer and survive restarts, but **removing the extension deletes them**. Use **Data → Export JSON** for a
+backup, and **Import** to bring it back or move it into the desktop app later.
+
+### Adding the extension, browser by browser
+
+#### Chrome, Edge, Brave, Opera, Vivaldi
+
+1. Click the address bar, type the address for your browser and press Enter: `chrome://extensions` (Chrome),
+   `edge://extensions` (Edge), `brave://extensions` (Brave), `opera://extensions` (Opera) or `vivaldi://extensions`
+   (Vivaldi). Browsers don't let these be opened from a link.
+2. Turn on **Developer mode**: a switch in the top-right corner (in Edge, in the left sidebar).
+3. Click **Load unpacked**, which appears once Developer mode is on.
+4. Select the extension folder (from step 2 of A, or the folder you unzipped in B) and click **Select Folder**.
+5. Optional: click the puzzle-piece icon next to the address bar and pin **TypeLens**, so its button is always visible.
 
 #### Firefox
 
-Firefox uses its own build of the extension, in the `extension-firefox` folder next to the one above, and in
-`TypeLens-extension-firefox-<version>.zip` on the release page.
-
-- **Permanent install:** when the release has a signed `TypeLens-extension-firefox-<version>.xpi`, open it in Firefox
+- **Permanent install:** if the release has a `TypeLens-extension-firefox-<version>.xpi` file, open it with Firefox
   (or drag it onto a Firefox window) and click **Add**.
-- **Quick try:** open `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…** and pick
-  `manifest.json` in the `extension-firefox` folder. Firefox removes temporary add-ons when it closes.
+- **Without an .xpi:** go to `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…**, open the
+  Firefox extension folder and select `manifest.json`. Firefox removes temporary add-ons when it closes, so you'll
+  have to repeat this after each restart.
 
-If the popup says TypeLens needs access, click **Allow access**: Firefox can install extensions without their site
-permissions, and TypeLens needs monkeytype.com (to record) and 127.0.0.1 (to reach the desktop app).
-
-### 3. Take a test
-
-1. Start the TypeLens desktop app and leave it running (it can sit in the background).
-2. Go to [monkeytype.com](https://monkeytype.com) and finish a test.
-3. The test shows up in TypeLens within a few seconds, and the demo data disappears.
-
-The first extension that connects is paired with the app automatically. The extension's toolbar badge shows how many
-tests are still waiting to be delivered, for example while the app is closed. Nothing is lost: they are sent the next
-time the app runs.
-
-## Using TypeLens without the desktop app
-
-The desktop app is optional. The extension contains the complete dashboard, every page included, so you can use
-TypeLens on a computer where you can't or don't want to install software (a school or work computer, a Chromebook, or
-just to try it out).
-
-1. Load the extension as in [step 2](#2-load-the-browser-extension) (from the extracted
-   `TypeLens-extension-<version>.zip`, or the Firefox build).
-2. Finish a test on monkeytype.com.
-3. Click the TypeLens toolbar button, then **Open dashboard**.
-
-New tests appear in the open dashboard as soon as you finish them, with no sync step. Your tests are stored in the
-browser's extension storage, so they stay on this computer and survive browser restarts, but they are deleted if you
-remove the extension. Use **Data → Export JSON** for a backup, and **Import** to bring it back or to move it to the
-desktop app.
-
-What only the desktop app does: automatic updates, start at login, notifications and keeping your data in plain files.
-If you run both, the extension keeps delivering every test to the app as well, so you can switch at any time.
+Then click the TypeLens button in the toolbar. If it shows **Allow access**, click it: Firefox asks before an
+extension may read monkeytype.com and talk to the TypeLens app.
 
 ## Updating
 
@@ -293,7 +288,7 @@ The installer isn't code-signed yet. Click **More info → Run anyway**.
 
 The browser only reads the extension's files when it starts or when you reload the extension. Click the reload button
 (↻) on the TypeLens card in `chrome://extensions`. If it is still old, check which folder it was loaded from (shown on
-the card): if it's not the app's folder, see [Load the browser extension](#2-load-the-browser-extension) and load it
+the card): if it's not the app's folder, see [Load the browser extension](#adding-the-extension-browser-by-browser) and load it
 from there instead.
 
 </details>
