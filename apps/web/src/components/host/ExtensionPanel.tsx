@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { AlertTriangle, Check, Clipboard, FolderOpen, Plug, RotateCcw } from 'lucide-react';
 import type { ExtensionStatus } from '@typelens/host-contract';
 import { Badge } from '@/components/ui/Badge';
@@ -96,7 +97,7 @@ export function ExtensionPanel() {
                 {p.recorderSeenAt ? (
                   <>Seen on Monkeytype {timeAgo(p.recorderSeenAt, now)}</>
                 ) : (
-                  <span className="text-[var(--sub)]">Not seen yet. Open monkeytype.com in Chrome.</span>
+                  <span className="text-[var(--sub)]">Not seen yet. Open (or reload) monkeytype.com in the browser with the extension.</span>
                 )}
               </Row>
               {unhealthy && p.health && (
@@ -155,26 +156,14 @@ export function ExtensionPanel() {
         </p>
       )}
 
-      <div className="mt-4 rounded-md border border-[var(--sub-2)] bg-[var(--bg-dark)] p-3 text-xs text-[var(--sub)]">
-        <p className="mb-1.5 flex items-center gap-1.5 font-semibold text-[var(--text)]">
-          <Plug className="h-3.5 w-3.5" aria-hidden /> Install the extension (once)
-        </p>
-        <ol className="list-decimal space-y-1 pl-5">
-          <li>
-            In Chrome, open <code className="text-[var(--text)]">chrome://extensions</code> and switch on <strong>Developer mode</strong>.
-          </li>
-          <li>
-            Press <strong>Load unpacked</strong> and pick the extension folder{folder ? <> (<code className="break-all text-[var(--text)]">{folder}</code>)</> : ''}.
-          </li>
-          <li>Finish a test on monkeytype.com. It shows up here within a few seconds.</li>
-        </ol>
-        <p className="mt-2">
-          Edge, Brave, Opera and Vivaldi work the same way. For Firefox, install the signed{' '}
-          <code className="text-[var(--text)]">.xpi</code> from the releases page, or for a quick try open{' '}
-          <code className="text-[var(--text)]">about:debugging</code> &gt; This Firefox &gt; Load Temporary Add-on and pick{' '}
-          <code className="text-[var(--text)]">manifest.json</code> in the <code className="text-[var(--text)]">extension-firefox</code> folder next
-          to the one above.
-        </p>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-[var(--sub-2)] bg-[var(--bg-dark)] p-3 text-xs text-[var(--sub)]">
+        <span className="inline-flex items-center gap-1.5">
+          <Plug className="h-3.5 w-3.5 text-[var(--text)]" aria-hidden />
+          Need to install the extension, or use another browser? The setup guide has the exact steps for Chrome, Edge, Brave, Opera, Vivaldi and Firefox.
+        </span>
+        <Link to="/setup">
+          <Button variant="outline" size="sm">Open the setup guide</Button>
+        </Link>
       </div>
     </Card>
   );

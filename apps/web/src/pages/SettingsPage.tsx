@@ -255,11 +255,11 @@ function GoalsCard() {
       <form onSubmit={(e) => void save(e)} className="flex flex-wrap items-end gap-4">
         <label className="flex flex-col gap-1 text-xs text-[var(--sub)]">
           Practice per week (minutes)
-          <Input type="number" min={0} max={10000} inputMode="numeric" value={minutes} onChange={(e) => setMinutes(e.target.value)} placeholder="e.g. 60" className="w-44" />
+          <Input type="number" min={0} max={10000} inputMode="numeric" value={minutes} onChange={(e) => setMinutes(e.target.value)} placeholder="e.g. 60" className="!w-44" />
         </label>
         <label className="flex flex-col gap-1 text-xs text-[var(--sub)]">
           Target speed (WPM)
-          <Input type="number" min={0} max={400} inputMode="numeric" value={wpm} onChange={(e) => setWpm(e.target.value)} placeholder="e.g. 100" className="w-44" />
+          <Input type="number" min={0} max={400} inputMode="numeric" value={wpm} onChange={(e) => setWpm(e.target.value)} placeholder="e.g. 100" className="!w-44" />
         </label>
         <Button type="submit" variant="primary" size="md">
           {saved ? <Check className="h-3.5 w-3.5" aria-hidden /> : null}

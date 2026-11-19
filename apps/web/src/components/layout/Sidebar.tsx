@@ -11,6 +11,7 @@ import {
   Target,
   Database,
   Settings,
+  Rocket,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SETTINGS_PATH } from '@typelens/host-contract';
@@ -50,16 +51,13 @@ const NAV_GROUPS: Array<{ label: string; items: NavItem[] }> = [
   },
 ];
 
-/** The TypeLens mark (public/logo.svg), drawn in the theme's colours. */
+/** The TypeLens lens (the same shape as the app and extension icons), drawn in the theme's colours. */
 export function LogoMark({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 30 30" className={className} aria-hidden>
-      <rect x="1.5" y="1.5" width="27" height="27" rx="4" fill="var(--main)" />
-      <g fill="var(--bg)">
-        <path d="M15.47,7.1l-1.3,1.85c-0.2,0.29-0.54,0.47-0.9,0.47h-7.1V7.09C6.16,7.1,15.47,7.1,15.47,7.1z" />
-        <polygon points="24.3,7.1 13.14,22.91 5.7,22.91 16.86,7.1" />
-        <path d="M14.53,22.91l1.31-1.86c0.2-0.29,0.54-0.47,0.9-0.47h7.09v2.33H14.53z" />
-      </g>
+    <svg viewBox="0 0 32 32" className={className} aria-hidden>
+      <rect x="0.5" y="0.5" width="31" height="31" rx="6.4" fill="var(--bg-dark)" stroke="var(--sub-2)" />
+      <circle cx="13.44" cy="13.44" r="7.68" fill="none" stroke="var(--main)" strokeWidth="4.48" />
+      <line x1="19.2" y1="19.2" x2="26.88" y2="26.88" stroke="var(--main)" strokeWidth="4.48" strokeLinecap="round" />
     </svg>
   );
 }
@@ -89,6 +87,24 @@ export function Sidebar() {
         </span>
       </div>
       <nav className="flex-1 overflow-y-auto py-3">
+        {/* until the first real test arrives, the most useful page is the setup guide */}
+        {(src.realCount ?? 0) === 0 && (
+          <div className="mb-3">
+            <NavLink
+              to="/setup"
+              title="Get started"
+              className={({ isActive }) =>
+                cn(
+                  'flex items-center gap-3 rounded-md border px-3 py-2 text-sm font-semibold transition-colors md:mx-2',
+                  isActive ? 'border-[var(--main)] bg-main/10 text-[var(--main)]' : 'border-[var(--sub-2)] text-[var(--text)] hover:border-[var(--main)]',
+                )
+              }
+            >
+              <Rocket className="h-4 w-4 shrink-0" aria-hidden />
+              <span className="hidden md:inline">Get started</span>
+            </NavLink>
+          </div>
+        )}
         {NAV_GROUPS.map((g) => (
           <div key={g.label} className="mb-3">
             <div className="hidden px-5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--sub)] opacity-70 md:block">{g.label}</div>
