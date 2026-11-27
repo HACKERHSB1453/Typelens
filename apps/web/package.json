@@ -13,7 +13,7 @@
     "dependencies": {
         "@typelens/core": "*",
         "@typelens/host-contract": "*",
-        "chart.js": "4.6.1",
+        "chart.js": "4.6.2",
         "date-fns": "4.4.0",
         "hack-font": "^3.3.0",
         "lucide-react": "1.64.0",
